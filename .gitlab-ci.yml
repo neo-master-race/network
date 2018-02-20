@@ -5,11 +5,26 @@ image: elixir:latest
 #  - redis:latest
 #  - postgres:latest
 
+# Préparation de l'environnement avant de pouvoir effectuer les tests
 before_script:
   - mix local.rebar --force
   - mix local.hex --force
   - mix deps.get
 
+# Lance les différents tests, et vérifie si tout est OK
 mix:
+  tags:
+    - docker
   script:
-  - mix test
+    - mix test
+
+# Permet de servir un site static avec la documentation
+pages:
+  tags:
+    - docker
+  script:
+    - mix docs
+    - mv doc public
+  artifacts:
+    paths:
+      - public
