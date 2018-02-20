@@ -21,6 +21,8 @@ defmodule Network.MixProject do
   # Les dépendences
   defp deps do
     [
+      {:earmark, "~> 1.2", only: :dev},
+      {:ex_doc, "~> 0.18.3", only: :dev}
     ]
   end
 end
