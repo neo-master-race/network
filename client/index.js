@@ -2,6 +2,7 @@
 const net      = require('net');
 const readline = require('readline');
 const prompts  = require('prompts');
+const messages = require('./messages_pb');
 
 // informations we need to ask the user about the server location
 async function askDetails() {
@@ -36,6 +37,12 @@ askDetails().then(response => {
   // just to store the user
   const user = response.user;
 
+  // readline init
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
   // client socket init
   const client = new net.Socket();
   client.setEncoding('utf-8');
@@ -57,12 +64,6 @@ askDetails().then(response => {
     console.error(`  !!  ${err}.`);
     client.destroy();
     rl.close();
-  });
-
-  // readline init
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
   });
 
   // when we read a user input

@@ -17,6 +17,7 @@
   "author": "pi-2",
   "license": "MIT",
   "dependencies": {
+    "google-protobuf": "^3.5.0",
     "prompts": "^0.1.4"
   }
 }

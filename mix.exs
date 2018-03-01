@@ -22,7 +22,8 @@ defmodule Network.MixProject do
   defp deps do
     [
       {:earmark, "~> 1.2", only: :dev},
-      {:ex_doc, "~> 0.18.3", only: :dev}
+      {:ex_doc, "~> 0.18.3", only: :dev},
+      {:exprotobuf, "~> 1.2"}
     ]
   end
 end
