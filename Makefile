@@ -1,6 +1,7 @@
 .PHONY: setup
 setup:
 	cd client && npm install
+	protoc --js_out=import_style=commonjs,binary:./client messages.proto
 	mix local.hex --force
 	mix deps.get
 

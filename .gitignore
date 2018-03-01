@@ -24,3 +24,6 @@ network-*.tar
 
 # Ignore all node_modules folders
 node_modules/
+
+# Ignore all "compiled" protobuf messages
+*_pb.js
