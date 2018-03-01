@@ -7,8 +7,7 @@ defmodule Network.Application do
     port = Application.get_env(:network, :port)
 
     children = [
-      {Task.Supervisor, name: Network.TaskSupervisor},
-      {Task, fn -> Network.accept(port) end}
+      {Network.ClientRegistry, []}
     ]
 
     opts = [strategy: :one_for_one, name: Network.Supervisor]

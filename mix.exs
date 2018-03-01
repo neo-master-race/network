@@ -13,7 +13,7 @@ defmodule Network.MixProject do
 
   def application do
     [
-      applications: [:exprotobuf],
+      applications: [:exprotobuf, :ranch],
       extra_applications: [:logger],
       mod: {Network.Application, []}
     ]
@@ -23,7 +23,8 @@ defmodule Network.MixProject do
     [
       {:earmark, "~> 1.2", only: :dev},
       {:ex_doc, "~> 0.18.3", only: :dev},
-      {:exprotobuf, "~> 1.2"}
+      {:exprotobuf, "~> 1.2"},
+      {:ranch, "~> 1.4"}
     ]
   end
 end
