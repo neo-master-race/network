@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 network-*.tar
 
+# Ignore all node_modules folders
+node_modules/

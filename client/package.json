@@ -1,0 +1,22 @@
+{
+  "name": "network",
+  "version": "1.0.0",
+  "description": "network client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.unistra.fr/pi-2/network.git"
+  },
+  "keywords": [
+    "network",
+    "client"
+  ],
+  "author": "pi-2",
+  "license": "MIT",
+  "dependencies": {
+    "prompts": "^0.1.4"
+  }
+}
