@@ -10,7 +10,9 @@ defmodule Network do
   """
   def accept(port) do
     {:ok, clients} = Agent.start_link(fn -> [] end)
-    {:ok, socket} = :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+
+    {:ok, socket} =
+      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
 
     Logger.info("accepting connections on port #{port}")
     loop_acceptor(socket, clients)
@@ -23,7 +25,8 @@ defmodule Network do
     write_info(client, "successfully connected to the server!")
     Agent.update(clients, fn list -> [client] ++ list end)
 
-    {:ok, pid} = Task.Supervisor.start_child(Network.TaskSupervisor, fn -> serve(client, clients) end)
+    {:ok, pid} =
+      Task.Supervisor.start_child(Network.TaskSupervisor, fn -> serve(client, clients) end)
 
     :ok = :gen_tcp.controlling_process(client, pid)
     loop_acceptor(socket, clients)
@@ -31,18 +34,23 @@ defmodule Network do
 
   defp serve(socket, clients) do
     clientId = Port.info(socket)[:id]
+
     case read_line(socket) do
       {:ok, data} ->
         Logger.info("client #{clientId} sent message: #{data}")
+
         Agent.get(clients, fn list ->
           Enum.each(list, fn c -> write_line(c, data) end)
         end)
 
         serve(socket, clients)
+
       {:logout, reason} ->
         Agent.update(clients, fn list -> list -- [socket] end)
         Logger.info("client #{clientId} has leaved. Reason: #{reason}")
-      {:error, msg} -> Logger.error(msg)
+
+      {:error, msg} ->
+        Logger.error(msg)
     end
   end
 
