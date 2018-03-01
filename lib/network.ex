@@ -44,11 +44,17 @@ defmodule Network do
 
     case read_line(socket) do
       {:ok, data} ->
-        Logger.info("client #{clientId} sent message: #{data}")
+        content = data.content
+        Logger.info("client #{clientId} sent message: #{content}")
 
         Agent.get(clients, fn list ->
-          Enum.each(list, fn c -> write_line(c, data) end)
+          Enum.each(list, fn c -> write_line(c, content) end)
         end)
+
+        serve(socket, clients)
+
+      {:warn, msg} ->
+        Logger.warn(msg)
 
         serve(socket, clients)
 
@@ -64,16 +70,29 @@ defmodule Network do
   defp read_line(socket) do
     case :gen_tcp.recv(socket, 0) do
       {:ok, data} ->
-        decodedMsg = Messages.Message.decode(data)
-        {:ok, decodedMsg}
-      {:error, :closed} -> {:logout, "socket is closed"}
-      _ -> {:error, "unknown error"}
+        case Messages.decode(data) do
+          {:ok, data} -> {:ok, data}
+          _ -> {:warn, "cannot decode message: #{String.trim(data)}"}
+        end
+
+      {:error, :closed} ->
+        {:logout, "socket is closed"}
+
+      _ ->
+        {:error, "unknown error"}
     end
   end
 
   defp write_line(socket, line) do
-    encodedMsg = Messages.Message.new(content: line)
-    :gen_tcp.send(socket, encodedMsg)
+    newMsg = Messages.Message.new(content: line)
+
+    case Messages.encode(newMsg) do
+      {:ok, encodedMsg} ->
+        :gen_tcp.send(socket, encodedMsg)
+
+      _ ->
+        Logger.warn("cannot encode and send message: #{String.trim(line)}")
+    end
   end
 
   defp write_info(socket, line) do
