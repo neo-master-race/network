@@ -11,11 +11,17 @@ defmodule Network do
   def accept(port) do
     {:ok, clients} = Agent.start_link(fn -> [] end)
 
-    {:ok, socket} =
-      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+    case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
+      {:ok, socket} ->
+        Logger.info("accepting connections on port #{port}")
+        loop_acceptor(socket, clients)
 
-    Logger.info("accepting connections on port #{port}")
-    loop_acceptor(socket, clients)
+      {:error, :eaddrinuse} ->
+        Logger.error("something is already listening on port #{port}.")
+
+      _ ->
+        Logger.error("unknown error")
+    end
   end
 
   defp loop_acceptor(socket, clients) do
