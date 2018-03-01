@@ -13,12 +13,12 @@ defmodule Network.MixProject do
 
   def application do
     [
+      applications: [:exprotobuf],
       extra_applications: [:logger],
       mod: {Network.Application, []}
     ]
   end
 
-  # Les dépendences
   defp deps do
     [
       {:earmark, "~> 1.2", only: :dev},

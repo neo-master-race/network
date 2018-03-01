@@ -28,6 +28,7 @@ defmodule Network do
     {:ok, client} = :gen_tcp.accept(socket)
     clientId = Port.info(client)[:id]
     Logger.info("client #{clientId} joined!")
+
     write_info(client, "successfully connected to the server!")
     Agent.update(clients, fn list -> [client] ++ list end)
 
@@ -62,14 +63,17 @@ defmodule Network do
 
   defp read_line(socket) do
     case :gen_tcp.recv(socket, 0) do
-      {:ok, data} -> {:ok, data}
+      {:ok, data} ->
+        decodedMsg = Messages.Message.decode(data)
+        {:ok, decodedMsg}
       {:error, :closed} -> {:logout, "socket is closed"}
       _ -> {:error, "unknown error"}
     end
   end
 
   defp write_line(socket, line) do
-    :gen_tcp.send(socket, line)
+    encodedMsg = Messages.Message.new(content: line)
+    :gen_tcp.send(socket, encodedMsg)
   end
 
   defp write_info(socket, line) do
