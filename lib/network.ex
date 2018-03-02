@@ -1,3 +1,2 @@
 defmodule Network do
-
 end

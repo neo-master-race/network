@@ -7,7 +7,11 @@ defmodule Network.Application do
     port = Application.get_env(:network, :port)
 
     children = [
-      {Network.ClientRegistry, []}
+      {Network.ClientRegistry, []},
+      %{
+        id: Network.Acceptor,
+        start: {Network.Acceptor, :start_link, []}
+      }
     ]
 
     opts = [strategy: :one_for_one, name: Network.Supervisor]
