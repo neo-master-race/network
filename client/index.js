@@ -47,11 +47,18 @@ askDetails().then(response => {
   const client = new net.Socket();
   client.setEncoding('utf-8');
 
+  function send_msg(msg) {
+    const buff = Buffer.from(msg);
+    const len  = Buffer.alloc(4); // size of a uint32
+    len.writeUInt32LE(buff.length);
+    client.write(Buffer.concat([len, buff]));
+  }
+
   // try to connect
   client.connect(response.port, response.host, () => {
     console.log(`Connected to ${response.host}:${response.port}!`);
     console.log('Type /quit to exit.\n\n');
-    client.write("Node client connected!\n");
+    send_msg("Node client connected!\n");
   });
 
   // when we receive data, we log it in the console
@@ -73,7 +80,7 @@ askDetails().then(response => {
       rl.close();
       console.log("Goodbye!");
     } else {
-      client.write(data + '\n');
+      send_msg(data);
     }
   });
 });
