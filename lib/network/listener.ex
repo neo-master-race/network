@@ -18,7 +18,9 @@ defmodule Network.Listener do
     GenServer.call(worker_pid, {:send_msg, "Welcome to the server!"})
     GenServer.call(worker_pid, {:broadcast_msg, "client #{id} joined!"})
 
-    Logger.debug("client #{id} connected (listener=#{inspect self()}, worker=#{inspect worker_pid}).")
+    Logger.debug(
+      "client #{id} connected (listener=#{inspect(self())}, worker=#{inspect(worker_pid)})."
+    )
 
     listen(socket, transport, worker_pid)
   end
@@ -27,14 +29,16 @@ defmodule Network.Listener do
     # timeout at 2min
     case transport.recv(socket, 0, 2 * 60 * 1_000) do
       {:ok, msg} ->
-
         case msg do
           <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
             :ok = Worker.handle_msg(worker_pid, String.trim(message))
-          buffer -> buffer
+
+          buffer ->
+            buffer
         end
 
         listen(socket, transport, worker_pid)
+
       _ ->
         state = GenServer.call(worker_pid, :inspect)
         Logger.debug("socket for client #{state.id} closed.")

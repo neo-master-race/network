@@ -28,17 +28,18 @@ defmodule Network.Worker do
   end
 
   def handle_call({:handle_msg, msg}, _from, state) do
-    Logger.debug("client #{inspect state.id} sent message: #{inspect msg}")
+    Logger.debug("client #{inspect(state.id)} sent message: #{inspect(msg)}")
 
-    ClientRegistry.get_entries
-    |> Stream.reject(fn {id, _pid} -> id == state.id end) # do not send to the sender
+    # do not send to the sender
+    ClientRegistry.get_entries()
+    |> Stream.reject(fn {id, _pid} -> id == state.id end)
     |> Enum.each(fn {_id, pid} -> send_msg(pid, msg) end)
 
     {:reply, :ok, state}
   end
 
   def handle_call({:broadcast_msg, msg}, from, state) do
-    Logger.debug("client #{inspect state.id} broadcasted message: #{inspect msg}")
+    Logger.debug("client #{inspect(state.id)} broadcasted message: #{inspect(msg)}")
     handle_call({:handle_msg, msg}, from, state)
     handle_call({:send_msg, msg}, from, state)
 

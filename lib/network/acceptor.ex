@@ -11,7 +11,10 @@ defmodule Network.Acceptor do
     try do
       {:ok, _} = :ranch.start_listener(:network, 100, :ranch_tcp, opts, Listener, [])
     rescue
-      _ -> Logger.error("something is already listening on port #{port} or you don't have the right to listen to it.")
+      _ ->
+        Logger.error(
+          "something is already listening on port #{port} or you don't have the right to listen to it."
+        )
     end
   end
 end
