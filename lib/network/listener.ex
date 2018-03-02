@@ -15,6 +15,9 @@ defmodule Network.Listener do
     id = Port.info(socket)[:id]
     {:ok, worker_pid} = Worker.start_link(socket, transport, id)
 
+    GenServer.call(worker_pid, {:send_msg, "Welcome to the server!"})
+    GenServer.call(worker_pid, {:broadcast_msg, "client #{id} joined!"})
+
     Logger.debug("client #{id} connected (listener=#{inspect self()}, worker=#{inspect worker_pid}).")
 
     listen(socket, transport, worker_pid)

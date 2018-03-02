@@ -37,6 +37,14 @@ defmodule Network.Worker do
     {:reply, :ok, state}
   end
 
+  def handle_call({:broadcast_msg, msg}, from, state) do
+    Logger.debug("client #{inspect state.id} broadcasted message: #{inspect msg}")
+    handle_call({:handle_msg, msg}, from, state)
+    handle_call({:send_msg, msg}, from, state)
+
+    {:reply, :ok, state}
+  end
+
   def handle_call({:send_msg, msg}, _from, state) do
     state.transport.send(state.socket, msg)
     {:reply, :ok, state}
