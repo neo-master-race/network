@@ -29,13 +29,7 @@ defmodule Network.Listener do
     # timeout at 2min
     case transport.recv(socket, 0, 2 * 60 * 1_000) do
       {:ok, msg} ->
-        case msg do
-          <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
-            :ok = Worker.handle_msg(worker_pid, String.trim(message))
-
-          buffer ->
-            buffer
-        end
+        :ok = Worker.handle_msg(worker_pid, msg)
 
         listen(socket, transport, worker_pid)
 

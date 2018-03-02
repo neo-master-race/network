@@ -8,7 +8,8 @@ defmodule Network.Worker do
     default_state = %{
       socket: socket,
       transport: transport,
-      id: id
+      id: id,
+      buffer: ""
     }
 
     GenServer.start_link(__MODULE__, default_state)
@@ -27,15 +28,27 @@ defmodule Network.Worker do
     GenServer.call(pid, {:handle_msg, msg})
   end
 
-  def handle_call({:handle_msg, msg}, _from, state) do
-    Logger.debug("client #{inspect(state.id)} sent message: #{inspect(msg)}")
+  def handle_message(message, state) do
+    Logger.debug("client #{inspect(state.id)} sent message: #{inspect(message)}")
 
     # do not send to the sender
     ClientRegistry.get_entries()
     |> Stream.reject(fn {id, _pid} -> id == state.id end)
-    |> Enum.each(fn {_id, pid} -> send_msg(pid, msg) end)
+    |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+  end
 
-    {:reply, :ok, state}
+  def handle_buffer(buffer, state) do
+    case buffer do
+      <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
+        handle_message(message, state)
+        handle_buffer(rest, state)
+      buffer -> buffer
+    end
+  end
+
+  def handle_call({:handle_msg, msg}, _from, %{buffer: buffer} = state) do
+    buffer = handle_buffer(buffer <> msg, state)
+    {:reply, :ok, %{state | buffer: buffer}}
   end
 
   def handle_call({:broadcast_msg, msg}, from, state) do
