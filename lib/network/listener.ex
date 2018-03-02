@@ -2,6 +2,7 @@ defmodule Network.Listener do
   require Logger
 
   alias Network.Worker
+  alias Network.ClientRegistry
 
   def start_link(ref, socket, transport, opts) do
     pid = spawn_link(__MODULE__, :init, [ref, socket, transport, opts])
@@ -20,12 +21,16 @@ defmodule Network.Listener do
   end
 
   def listen(socket, transport, worker_pid) do
-    # timeout at 5min
-    case transport.recv(socket, 0, 5 * 60 * 1_000) do
+    # timeout at 2min
+    case transport.recv(socket, 0, 2 * 60 * 1_000) do
       {:ok, msg} ->
         :ok = Worker.handle_msg(worker_pid, String.trim(msg))
         listen(socket, transport, worker_pid)
-      _ -> :ok = transport.close(socket)
+      _ ->
+        state = GenServer.call(worker_pid, :inspect)
+        Logger.debug("socket for client #{state.id} closed.")
+        :ok = transport.close(socket)
+        ClientRegistry.unregister(state.id)
     end
   end
 end

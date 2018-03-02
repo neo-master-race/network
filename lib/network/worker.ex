@@ -15,7 +15,7 @@ defmodule Network.Worker do
   end
 
   def init(default) do
-    ClientRegistry.register({default.id, self})
+    ClientRegistry.register({default.id, self()})
     {:ok, default}
   end
 
@@ -40,5 +40,9 @@ defmodule Network.Worker do
   def handle_call({:send_msg, msg}, _from, state) do
     state.transport.send(state.socket, msg)
     {:reply, :ok, state}
+  end
+
+  def handle_call(:inspect, _from, state) do
+    {:reply, state, state}
   end
 end
