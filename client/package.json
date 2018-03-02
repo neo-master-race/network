@@ -19,5 +19,8 @@
   "dependencies": {
     "google-protobuf": "^3.5.0",
     "prompts": "^0.1.4"
+  },
+  "devDependencies": {
+    "prettier": "1.11.1"
   }
 }

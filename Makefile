@@ -16,3 +16,8 @@ run-server:
 .PHONY: run-dev-server
 run-dev-server:
 	@iex -S mix
+
+.PHONY: format
+format:
+	mix format
+	./client/node_modules/prettier/bin-prettier.js --single-quote --trailing-comma es5 --write "./client/*.js"
