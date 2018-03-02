@@ -60,7 +60,8 @@ defmodule Network.Worker do
   end
 
   def handle_call({:send_msg, msg}, _from, state) do
-    state.transport.send(state.socket, msg)
+    message = <<byte_size(msg)::little-unsigned-32>> <> msg
+    state.transport.send(state.socket, message)
     {:reply, :ok, state}
   end
 

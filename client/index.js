@@ -58,7 +58,7 @@ askDetails().then(response => {
   client.connect(response.port, response.host, () => {
     console.log(`Connected to ${response.host}:${response.port}!`);
     console.log('Type /quit to exit.\n\n');
-    send_msg("Node client connected!\n");
+    send_msg("Node client connected!");
   });
 
   // when we receive data, we log it in the console
