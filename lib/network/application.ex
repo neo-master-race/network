@@ -1,11 +1,13 @@
 defmodule Network.Application do
-  @moduledoc false
+  @moduledoc """
+  Supervisor of the application.
+
+  Start the ClientRegistry and the Acceptor
+  """
 
   use Application
 
   def start(_type, _args) do
-    port = Application.get_env(:network, :port)
-
     children = [
       {Network.ClientRegistry, []},
       %{

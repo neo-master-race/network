@@ -47,6 +47,7 @@ askDetails().then(response => {
   const client = new net.Socket();
   client.setEncoding('utf-8');
 
+  // convert the message and send it
   function send_msg(msg) {
     const buff = Buffer.from(msg);
     const len  = Buffer.alloc(4); // size of a uint32
@@ -66,14 +67,16 @@ askDetails().then(response => {
     send_msg("Node client connected!");
   });
 
+  // do some work when receiving data
   client.on('data', data => {
-    var buff = Buffer.from(data);
-    var len = buff.readUInt32LE();
-    var msg = buff.slice(4); // size of a uint32
+    let buff = Buffer.from(data);
+    let len = buff.readUInt32LE();
+    let msg = buff.slice(4); // size of a uint32
 
     if (msg.length == len) {
       get_msg(msg);
     } else {
+      // in the case if there are many messages in one time
       while (msg.length > len) {
         get_msg(msg.slice(0, len));
         buff = msg.slice(len);
@@ -83,6 +86,8 @@ askDetails().then(response => {
           get_msg(msg);
         }
       }
+
+      // if something is missing
       if (msg.length < len) {
         console.error("Error: some data are missing from: " + msg.toString());
       }
