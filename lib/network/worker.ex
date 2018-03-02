@@ -42,7 +42,9 @@ defmodule Network.Worker do
       <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
         handle_message(message, state)
         handle_buffer(rest, state)
-      buffer -> buffer
+
+      buffer ->
+        buffer
     end
   end
 
@@ -53,7 +55,9 @@ defmodule Network.Worker do
 
   def handle_call({:broadcast_msg, msg}, from, state) do
     Logger.debug("client #{inspect(state.id)} broadcasted message: #{inspect(msg)}")
-    handle_call({:handle_msg, msg}, from, state)
+    # all but the sender
+    handle_message(msg, state)
+    # to the sender
     handle_call({:send_msg, msg}, from, state)
 
     {:reply, :ok, state}

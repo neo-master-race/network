@@ -54,6 +54,11 @@ askDetails().then(response => {
     client.write(Buffer.concat([len, buff]));
   }
 
+  // when we receive data, we log it in the console
+  function get_msg(msg) {
+    console.log("received: " + msg.toString());
+  }
+
   // try to connect
   client.connect(response.port, response.host, () => {
     console.log(`Connected to ${response.host}:${response.port}!`);
@@ -61,9 +66,27 @@ askDetails().then(response => {
     send_msg("Node client connected!");
   });
 
-  // when we receive data, we log it in the console
   client.on('data', data => {
-    console.log(data.replace(/\n$/, ''));
+    var buff = Buffer.from(data);
+    var len = buff.readUInt32LE();
+    var msg = buff.slice(4); // size of a uint32
+
+    if (msg.length == len) {
+      get_msg(msg);
+    } else {
+      while (msg.length > len) {
+        get_msg(msg.slice(0, len));
+        buff = msg.slice(len);
+        len = buff.readUInt32LE();
+        msg = buff.slice(4); // size of a uint32
+        if (msg.length == len) {
+          get_msg(msg);
+        }
+      }
+      if (msg.length < len) {
+        console.error("Error: some data are missing from: " + msg.toString());
+      }
+    }
   });
 
   // error handling
