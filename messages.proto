@@ -3,4 +3,5 @@ package chat;
 
 message Message {
   string content = 1;
+  string user = 2;
 }
