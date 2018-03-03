@@ -25,10 +25,31 @@ async function askDetails() {
       type: 'text',
       name: 'user',
       message: 'Username',
-      initial: 'NodeJS',
+      initial: 'NodeJS-' + Math.floor(Math.random() * 65535),
     },
   ];
   return await prompts(questions);
+}
+
+// encode a message
+function msgEncode(content, user) {
+  let message = new messages.Message();
+  message.setContent(content);
+  message.setUser(user);
+  return message.serializeBinary();
+}
+
+// decode a message
+function msgDecode(msg) {
+  let message;
+  try {
+    message = messages.Message.deserializeBinary(new Uint8Array(msg));
+  } catch (e) {
+    // in case the message was sent without protobuf
+    message = new messages.Message();
+    message.setContent(msg);
+  }
+  return message;
 }
 
 // first we get all needed informations from the user, then we create the socket
@@ -48,15 +69,20 @@ askDetails().then(response => {
 
   // convert the message and send it
   function send_msg(msg) {
-    const buff = Buffer.from(msg);
+    const message = msgEncode(msg, user);
+    const buff = Buffer.from(message);
     const len = Buffer.alloc(4); // size of a uint32
     len.writeUInt32LE(buff.length);
-    client.write(Buffer.concat([len, buff]));
+    const data = Buffer.concat([len, buff]);
+    client.write(data);
   }
 
   // when we receive data, we log it in the console
   function get_msg(msg) {
-    console.log('received: ' + msg.toString());
+    const message = msgDecode(Buffer.from(msg));
+    const getUser = message.getUser();
+    const msgFrom = getUser === '' ? 'BAD_INPUT=' : getUser + ': ';
+    console.log(msgFrom + message.getContent().toString());
   }
 
   // try to connect
