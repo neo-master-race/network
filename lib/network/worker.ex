@@ -20,6 +20,9 @@ defmodule Network.Worker do
     {:ok, default}
   end
 
+  @doc """
+  Send a message `msg` to the client having pid = `pid`
+  """
   def send_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
     GenServer.call(pid, {:send_msg, msg})
   end
@@ -37,6 +40,11 @@ defmodule Network.Worker do
     |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
   end
 
+  @doc """
+  Handling the `buffer` when getting some datas.
+
+  Useful when many messages are coming at the same time, or if messages are too long.
+  """
   def handle_buffer(buffer, state) do
     case buffer do
       <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
@@ -48,11 +56,17 @@ defmodule Network.Worker do
     end
   end
 
+  @doc """
+  Handle an incoming message `msg`
+  """
   def handle_call({:handle_msg, msg}, _from, %{buffer: buffer} = state) do
     buffer = handle_buffer(buffer <> msg, state)
     {:reply, :ok, %{state | buffer: buffer}}
   end
 
+  @doc """
+  Broadcast a message `msg`
+  """
   def handle_call({:broadcast_msg, msg}, from, state) do
     Logger.debug("client #{inspect(state.id)} broadcasted message: #{inspect(msg)}")
     # all but the sender
@@ -63,12 +77,18 @@ defmodule Network.Worker do
     {:reply, :ok, state}
   end
 
+  @doc """
+  Send a message `msg` to the client of this worker
+  """
   def handle_call({:send_msg, msg}, _from, state) do
     message = <<byte_size(msg)::little-unsigned-32>> <> msg
     state.transport.send(state.socket, message)
     {:reply, :ok, state}
   end
 
+  @doc """
+  Returns the current `state` of the worker
+  """
   def handle_call(:inspect, _from, state) do
     {:reply, state, state}
   end

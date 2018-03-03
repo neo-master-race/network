@@ -25,6 +25,9 @@ defmodule Network.Listener do
     listen(socket, transport, worker_pid)
   end
 
+  @doc """
+  Listen to a `socket` from `transport` for the worker having pid = `worker_pid`
+  """
   def listen(socket, transport, worker_pid) do
     # timeout at 2min
     case transport.recv(socket, 0, 2 * 60 * 1_000) do
