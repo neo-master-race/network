@@ -10,10 +10,6 @@ defmodule Messages do
   end
 
   def encode(data) do
-    try do
-      {:ok, __MODULE__.Message.encode(data)}
-    rescue
-      _ -> {:error, data}
-    end
+    __MODULE__.Message.encode(data)
   end
 end

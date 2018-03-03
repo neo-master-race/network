@@ -32,12 +32,20 @@ defmodule Network.Worker do
   end
 
   def handle_message(message, state) do
-    Logger.debug("client #{inspect(state.id)} sent message: #{inspect(message)}")
+    case Messages.decode(message) do
+      {:ok, data} ->
+        %{user: user, content: content} = data
+        Logger.debug("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
 
-    # do not send to the sender
-    ClientRegistry.get_entries()
-    |> Stream.reject(fn {id, _pid} -> id == state.id end)
-    |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        message = Messages.encode(Messages.Message.new(content: content, user: user))
+
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+      _ ->
+        Logger.warn("cannot decode message: #{String.trim(message)}")
+    end
   end
 
   @doc """
@@ -68,7 +76,7 @@ defmodule Network.Worker do
   Broadcast a message `msg`
   """
   def handle_call({:broadcast_msg, msg}, from, state) do
-    Logger.debug("client #{inspect(state.id)} broadcasted message: #{inspect(msg)}")
+    Logger.debug("client #{inspect(state.id)} broadcasted a message.")
     # all but the sender
     handle_message(msg, state)
     # to the sender
