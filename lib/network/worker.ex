@@ -31,6 +31,9 @@ defmodule Network.Worker do
     GenServer.call(pid, {:handle_msg, msg})
   end
 
+  @doc """
+  Handle an incoming `message` that needs to be sent to all other registred clients
+  """
   def handle_message(message, state) do
     case Messages.decode(message) do
       {:ok, data} ->
@@ -43,6 +46,7 @@ defmodule Network.Worker do
         ClientRegistry.get_entries()
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end
