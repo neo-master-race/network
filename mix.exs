@@ -26,7 +26,8 @@ defmodule Network.MixProject do
       {:earmark, "~> 1.2", only: :dev},
       {:ex_doc, "~> 0.18.3", only: :dev},
       {:exprotobuf, "~> 1.2"},
-      {:ranch, "~> 1.4"}
+      {:ranch, "~> 1.4"},
+      {:uuid, "~> 1.1"}
     ]
   end
 end
