@@ -1,11 +1,11 @@
 defmodule Network.Room do
-  use GenSever
+  use GenServer
 
   @doc """
   Initialize a room
   """
   def create_room(id_creator) do
-    %Room{
+    room = %{
       id: UUID.uuid4(),
       creator: id_creator, #right on the room's modif
       players: %{},
@@ -13,7 +13,4 @@ defmodule Network.Room do
       position: nil
     }
   end
-
-  def 
-
 end
