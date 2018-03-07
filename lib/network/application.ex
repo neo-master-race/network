@@ -10,6 +10,7 @@ defmodule Network.Application do
   def start(_type, _args) do
     children = [
       {Network.ClientRegistry, []},
+      {Network.RoomRegistry, []},
       %{
         id: Network.Acceptor,
         start: {Network.Acceptor, :start_link, []}
