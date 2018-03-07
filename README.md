@@ -5,7 +5,7 @@
 Nous avons décidé d'utiliser le langage de programmation [Elixir](https://elixir-lang.org) plutôt que l'API réseau d'[Unity](https://unity3d.com/fr/) pour : 
 
   1. apprendre un nouveau langage,
-  2. prendre de l'avance en cours de _Systèmes Distribués_ où le langage ([erland](http://www.erlang.org/) a été abordé (langage sur lequel est basé Elixir),
+  2. prendre de l'avance en cours de _Systèmes Distribués_ où le langage ([erlang](http://www.erlang.org/) a été abordé (langage sur lequel est basé Elixir),
   3. profiter de la puissance de ce langage : peu de ressources utilisées pour beaucoup de performance.
 
 Elixir est multi-paradigme ; il supporte les programmations :
@@ -70,17 +70,17 @@ Pour l'installation de la dernière version d'Elixir sur Fedora, il existe [cett
 #### Sources
 
   1. Installez [Erlang](https://github.com/erlang/otp) (19 ou 20)
-  ...`$ git clone https://github.com/erlang/otp.git`
-  ...`$ cd otp`
-  ...`$ ./otp_build autoconf`
-  ...`$ ./configure`
-  ...`$ ake`
-  ...`$ ake install`
+  `$ git clone https://github.com/erlang/otp.git`  
+  `$ cd otp`  
+  `$ ./otp_build autoconf`  
+  `$ ./configure`  
+  `$ make`  
+  `$ mke install`  
   2. Installez [Elixir](https://elixir-lang.org/install.html#compiling-from-source-unix-and-mingw)
     1. Depuis git
-  ...`$ git clone https://github.com/elixir-lang/elixir.git`
-  ...`$ cd elixir`
-  ...`$ make clean test`
+  `$ git clone https://github.com/elixir-lang/elixir.git`  
+  `$ cd elixir`  
+  `$ make clean test`  
     2. Depuis un [.zip](https://github.com/elixir-lang/elixir/archive/v1.6.1.zip) ou [.tar.gz](https://github.com/elixir-lang/elixir/archive/v1.6.1.tar.gz), dézippez, allez dans lee dossier nouvellement créé et y lancez `$ make`
   3. Ajoutez le bin path d'Elixir dans votre variable d'environnement PATH : `export PATH="$PATH:/usr/local/bin"`.
 
