@@ -139,11 +139,14 @@ Comme vu précédemment, mix l'outil de gestion de projet logiciel d'Elixir.
 Il sert à organiser et maintenir le code d'un projet grâce aux fonctionnalités de gestion de dépendances, d'empaquetage, de génération de la documentation, de test, etc.  
 Pour lancer notre projet, vous pouvez taper cette commande : `mix run`.  
 
-Ici, vous ne pouvez pas continuer à lancer des commandes manuellement.
+Ici, vous ne pouvez pas continuer à lancer des commandes manuellement.  
 
-Vous pouvez sinon taper `make run-server` qui fait la même chose.
+Vous pouvez sinon taper `make run-server` qui fait la même chose.  
 
 ### Mix format
+
+Mix format est le formateur de code fournit avec Elixir.  
+Cet outil formate automatiquement notre code selon un style cohérent lorsque vous taper la commande `mix format`.  
 
 
 Note : Pour plus d'informations, consultez le [site officiel d'Elixir](https://elixir-lang.org/).
