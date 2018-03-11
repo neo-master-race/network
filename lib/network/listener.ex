@@ -18,13 +18,27 @@ defmodule Network.Listener do
     GenServer.call(
       worker_pid,
       {:send_msg,
-       Messages.encode(Messages.Message.new(content: "Welcome to the server!", user: "SERVER"))}
+       Messages.encode(
+         Messages.Message.new(
+           type: "chat_message",
+           msg:
+             {:chat_message,
+              Messages.ChatMessage.new(content: "Welcome to the server!", user: "SERVER")}
+         )
+       )}
     )
 
     GenServer.call(
       worker_pid,
       {:broadcast_msg,
-       Messages.encode(Messages.Message.new(content: "client #{id} joined!", user: "SERVER"))}
+       Messages.encode(
+         Messages.Message.new(
+           type: "chat_message",
+           msg:
+             {:chat_message,
+              Messages.ChatMessage.new(content: "client #{id} joined!", user: "SERVER")}
+         )
+       )}
     )
 
     Logger.debug(

@@ -36,11 +36,9 @@ defmodule Network.Worker do
   """
   def handle_message(message, state) do
     case Messages.decode(message) do
-      {:ok, data} ->
+      {:chat_message, data} ->
         %{user: user, content: content} = data
         Logger.debug("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
-
-        message = Messages.encode(Messages.Message.new(content: content, user: user))
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -105,11 +103,11 @@ defmodule Network.Worker do
     {:reply, state, state}
   end
 
-  #Room
-  #def createRoom() do
-  #end
-  #def join() do
-  #end
-  #def updatePositon() do
-  #end
+  # Room
+  # def createRoom() do
+  # end
+  # def join() do
+  # end
+  # def updatePositon() do
+  # end
 end

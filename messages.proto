@@ -1,7 +1,17 @@
 syntax = "proto3";
 package protocol;
 
-message Message {
+// definition of a chat message
+message ChatMessage {
   string content = 1;
   string user = 2;
+}
+
+// message that can be exchanged between the client and the server
+// TYPE = "chat_message" if ChatMessage (for example)
+message Message {
+  string type = 1; // easier for fetching datas
+  oneof msg {
+    ChatMessage chat_message = 2;
+  }
 }

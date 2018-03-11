@@ -33,9 +33,12 @@ async function askDetails() {
 
 // encode a message
 function msgEncode(content, user) {
-  let message = new messages.Message();
-  message.setContent(content);
-  message.setUser(user);
+  const message = new messages.Message();
+  const chatMessage = new messages.ChatMessage();
+  chatMessage.setContent(content);
+  chatMessage.setUser(user);
+  message.setType('chat');
+  message.setChatMessage(chatMessage);
   return message.serializeBinary();
 }
 
@@ -43,10 +46,15 @@ function msgEncode(content, user) {
 function msgDecode(msg) {
   let message;
   try {
-    message = messages.Message.deserializeBinary(new Uint8Array(msg));
+    const fromBinary = messages.Message.deserializeBinary(new Uint8Array(msg));
+    if (fromBinary.hasChatMessage()) {
+      message = fromBinary.getChatMessage();
+    } else {
+      throw 'ChatMessageException';
+    }
   } catch (e) {
     // in case the message was sent without protobuf
-    message = new messages.Message();
+    message = new messages.ChatMessage();
     message.setContent(msg);
   }
   return message;
@@ -80,6 +88,7 @@ askDetails().then(response => {
   // when we receive data, we log it in the console
   function get_msg(msg) {
     const message = msgDecode(Buffer.from(msg));
+    if (!message) console.log('!!Receved empty message or bad message type.');
     const getUser = message.getUser();
     const msgFrom = getUser === '' ? 'BAD_INPUT=' : getUser + ': ';
     console.log(msgFrom + message.getContent().toString());

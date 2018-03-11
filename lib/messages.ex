@@ -3,7 +3,8 @@ defmodule Messages do
 
   def decode(data) do
     try do
-      {:ok, __MODULE__.Message.decode(data)}
+      %{msg: msg} = __MODULE__.Message.decode(data)
+      msg
     rescue
       _ -> {:error, data}
     end

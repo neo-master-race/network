@@ -7,7 +7,8 @@ defmodule Network.Room do
   def create_room(id_creator) do
     room = %{
       id: UUID.uuid4(),
-      creator: id_creator, #right on the room's modif
+      # right on the room's modif
+      creator: id_creator,
       players: %{},
       started: false,
       position: nil

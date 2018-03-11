@@ -5,7 +5,7 @@ defmodule Network.RoomRegistryTest do
   doctest Network.RoomRegistry
 
   test "register a room" do
-    room_id = :rand.uniform(241485)
+    room_id = :rand.uniform(241_485)
 
     :ok = RoomRegistry.register({room_id, self()})
     entries = RoomRegistry.get_entries()
