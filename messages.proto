@@ -1,6 +1,21 @@
 syntax = "proto3";
 package protocol;
 
+// Vec3
+message Vector {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+// Update the position of a user
+message UpdatePlayerPosition {
+  Vector position = 1;
+  Vector direction = 2;
+  Vector scale = 3;
+  string user = 4;
+}
+
 // definition of a chat message
 message ChatMessage {
   string content = 1;
@@ -13,5 +28,6 @@ message Message {
   string type = 1; // easier for fetching datas
   oneof msg {
     ChatMessage chat_message = 2;
+    UpdatePlayerPosition update_player_position = 3;
   }
 }
