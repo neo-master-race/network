@@ -45,6 +45,14 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
+      {:update_player_position, _data} ->
+        Logger.debug("got an update player position message.")
+
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end
