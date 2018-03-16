@@ -37,7 +37,7 @@ function msgEncode(content, user) {
   const chatMessage = new messages.ChatMessage();
   chatMessage.setContent(content);
   chatMessage.setUser(user);
-  message.setType('chat');
+  message.setType('chat_message');
   message.setChatMessage(chatMessage);
   return message.serializeBinary();
 }
