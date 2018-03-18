@@ -16,7 +16,7 @@ mix:
   tags:
     - docker
   script:
-    - mix test
+    - mix test --cover
 
 # Permet de servir un site static avec la documentation
 pages:

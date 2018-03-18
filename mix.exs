@@ -9,7 +9,8 @@ defmodule Network.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://git.unistra.fr/pi-2/network",
-      homepage_url: "https://pi-2.pages.unistra.fr/network/"
+      homepage_url: "https://pi-2.pages.unistra.fr/network/",
+      test_coverage: [tool: Coverex.Task]
     ]
   end
 
@@ -28,7 +29,8 @@ defmodule Network.MixProject do
       {:exprotobuf, "~> 1.2"},
       {:ranch, "~> 1.4"},
       {:uuid, "~> 1.1"},
-      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false}
+      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
+      {:coverex, "~> 1.4.15", only: :test}
     ]
   end
 end
