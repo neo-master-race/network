@@ -27,7 +27,8 @@ defmodule Network.MixProject do
       {:ex_doc, "~> 0.18.3", only: :dev},
       {:exprotobuf, "~> 1.2"},
       {:ranch, "~> 1.4"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false}
     ]
   end
 end
