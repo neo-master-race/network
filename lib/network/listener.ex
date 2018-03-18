@@ -41,7 +41,7 @@ defmodule Network.Listener do
        )}
     )
 
-    Logger.debug(
+    Logger.info(
       "client #{id} connected (listener=#{inspect(self())}, worker=#{inspect(worker_pid)})."
     )
 
@@ -61,7 +61,7 @@ defmodule Network.Listener do
 
       _ ->
         state = GenServer.call(worker_pid, :inspect)
-        Logger.debug("socket for client #{state.id} closed.")
+        Logger.info("socket for client #{state.id} closed.")
         :ok = transport.close(socket)
         ClientRegistry.unregister(state.id)
     end

@@ -14,7 +14,7 @@ defmodule Network.Acceptor do
     port = Application.get_env(:network, :port)
     opts = [port: port]
 
-    Logger.debug("accepting connections on port #{port}")
+    Logger.info("accepting connections on port #{port}")
 
     try do
       {:ok, _} = :ranch.start_listener(:network, 100, :ranch_tcp, opts, Listener, [])

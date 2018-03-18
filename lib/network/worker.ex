@@ -38,7 +38,7 @@ defmodule Network.Worker do
     case Messages.decode(message) do
       {:chat_message, data} ->
         %{user: user, content: content} = data
-        Logger.debug("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
+        Logger.info("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -46,7 +46,7 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:update_player_position, _data} ->
-        Logger.debug("got an update player position message.")
+        Logger.info("got an update player position message.")
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -86,7 +86,7 @@ defmodule Network.Worker do
   Broadcast a message `msg`
   """
   def handle_call({:broadcast_msg, msg}, from, state) do
-    Logger.debug("client #{inspect(state.id)} broadcasted a message.")
+    Logger.info("client #{inspect(state.id)} broadcasted a message.")
     # all but the sender
     handle_message(msg, state)
     # to the sender
