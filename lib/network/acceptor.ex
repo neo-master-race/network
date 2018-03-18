@@ -17,11 +17,13 @@ defmodule Network.Acceptor do
     Logger.info("accepting connections on port #{port}")
 
     try do
-      {:ok, _} = :ranch.start_listener(:network, 100, :ranch_tcp, opts, Listener, [])
+      r = :ranch.start_listener(:network, 100, :ranch_tcp, opts, Listener, [])
+      {:ok, _} = r
     rescue
       _ ->
         Logger.error(
-          "something is already listening on port #{port} or you don't have the right to listen to it."
+          "something is already listening on port #{port} " <>
+            "or you don't have the right to listen to it."
         )
     end
   end
