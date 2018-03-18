@@ -13,7 +13,7 @@ defmodule Network.RoomRegistryTest do
   end
 
   test "unregister a room" do
-    room_id = :rand.uniform(65535)
+    room_id = :rand.uniform(65_535)
 
     :ok = RoomRegistry.register({room_id, self()})
     entries = RoomRegistry.get_entries()
@@ -25,7 +25,7 @@ defmodule Network.RoomRegistryTest do
   end
 
   test "unregister an unregistred room" do
-    room_id = :rand.uniform(65535)
+    room_id = :rand.uniform(65_535)
     entries = RoomRegistry.get_entries()
     assert not Map.has_key?(entries, room_id)
     :ok = RoomRegistry.unregister(room_id)

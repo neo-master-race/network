@@ -5,7 +5,7 @@ defmodule Network.ClientRegistryTest do
   doctest Network.ClientRegistry
 
   test "register a client" do
-    client_id = :rand.uniform(65535)
+    client_id = :rand.uniform(65_535)
 
     :ok = ClientRegistry.register({client_id, self()})
     entries = ClientRegistry.get_entries()
@@ -13,7 +13,7 @@ defmodule Network.ClientRegistryTest do
   end
 
   test "unregister a client" do
-    client_id = :rand.uniform(65535)
+    client_id = :rand.uniform(65_535)
 
     :ok = ClientRegistry.register({client_id, self()})
     entries = ClientRegistry.get_entries()
@@ -25,7 +25,7 @@ defmodule Network.ClientRegistryTest do
   end
 
   test "unregister an unregistred client" do
-    client_id = :rand.uniform(65535)
+    client_id = :rand.uniform(65_535)
     entries = ClientRegistry.get_entries()
     assert not Map.has_key?(entries, client_id)
     :ok = ClientRegistry.unregister(client_id)
