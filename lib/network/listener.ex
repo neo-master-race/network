@@ -9,7 +9,7 @@ defmodule Network.Listener do
     {:ok, pid}
   end
 
-  def init(ref, socket, transport, _opts = []) do
+  def init(ref, socket, transport, [] = _opts) do
     :ok = :ranch.accept_ack(ref)
 
     id = Port.info(socket)[:id]
