@@ -1,4 +1,9 @@
 defmodule Network.RoomRegistry do
+  @moduledoc """
+  Contains all created rooms.
+  Can register/unregister rooms, and get all entries.
+  """
+
   use GenServer
 
   def start_link(_args) do

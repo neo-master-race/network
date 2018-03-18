@@ -1,8 +1,10 @@
 defmodule Network.Listener do
   require Logger
 
-  alias Network.Worker
+  alias Messages.ChatMessage
+  alias Messages.Message
   alias Network.ClientRegistry
+  alias Network.Worker
 
   def start_link(ref, socket, transport, opts) do
     pid = spawn_link(__MODULE__, :init, [ref, socket, transport, opts])
@@ -19,11 +21,10 @@ defmodule Network.Listener do
       worker_pid,
       {:send_msg,
        Messages.encode(
-         Messages.Message.new(
+         Message.new(
            type: "chat_message",
            msg:
-             {:chat_message,
-              Messages.ChatMessage.new(content: "Welcome to the server!", user: "SERVER")}
+             {:chat_message, ChatMessage.new(content: "Welcome to the server!", user: "SERVER")}
          )
        )}
     )
@@ -32,11 +33,9 @@ defmodule Network.Listener do
       worker_pid,
       {:broadcast_msg,
        Messages.encode(
-         Messages.Message.new(
+         Message.new(
            type: "chat_message",
-           msg:
-             {:chat_message,
-              Messages.ChatMessage.new(content: "client #{id} joined!", user: "SERVER")}
+           msg: {:chat_message, ChatMessage.new(content: "client #{id} joined!", user: "SERVER")}
          )
        )}
     )

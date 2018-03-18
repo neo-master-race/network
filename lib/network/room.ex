@@ -1,4 +1,8 @@
 defmodule Network.Room do
+  @moduledoc """
+  Describe the state of a room
+  """
+
   use GenServer
 
   @doc """

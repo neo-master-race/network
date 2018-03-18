@@ -1,4 +1,9 @@
 defmodule Network.ClientRegistry do
+  @moduledoc """
+  Contains all connected clients.
+  Can register/unregister clients, and get all entries.
+  """
+
   use GenServer
 
   def start_link(_args) do
