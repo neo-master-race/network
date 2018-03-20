@@ -51,8 +51,8 @@ defmodule Network.Listener do
   Listen to a `socket` from `transport` for the worker having pid = `worker_pid`
   """
   def listen(socket, transport, worker_pid) do
-    # timeout at 2min
-    case transport.recv(socket, 0, 2 * 60 * 1_000) do
+    # timeout at 30min
+    case transport.recv(socket, 0, 30 * 60 * 1_000) do
       {:ok, msg} ->
         :ok = Worker.handle_msg(worker_pid, msg)
 
