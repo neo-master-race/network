@@ -8,18 +8,15 @@ defmodule Network.Room do
   @doc """
   Initialize a room
   """
-  def create_room(id_creator) do
-    room = %{
+  def start_link(creator_id) do
+    default_state = %{
       id: UUID.uuid4(),
       # right on the room's modif
-      creator: id_creator,
+      creator: creator_id,
       players: %{},
       started: false
     }
-  end
-
-  def start_link(_args) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, default_state, name: __MODULE__)
   end
 
   def init(default) do
@@ -32,5 +29,9 @@ defmodule Network.Room do
 
   def handle_call({:start, id}, _from, state) do
     {:reply, :ok, %{state | started: true}}
+  end
+
+  def handle_call(:get_entries, _from, state) do
+    {:reply, state, state}
   end
 end
