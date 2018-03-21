@@ -16,6 +16,7 @@ defmodule Network.Room do
       players: %{},
       started: false
     }
+
     GenServer.start_link(__MODULE__, default_state, name: __MODULE__)
   end
 
@@ -23,14 +24,44 @@ defmodule Network.Room do
     {:ok, default}
   end
 
+  @doc """
+  Start the current room
+  """
   def start(id) do
     GenServer.call(__MODULE__, :start)
   end
 
-  def handle_call({:start, id}, _from, state) do
+  @doc """
+  Function handling a room who starts
+  """
+  def handle_call(:start, _from, state) do
     {:reply, :ok, %{state | started: true}}
   end
 
+  @doc """
+  Ends the current room
+  """
+  def finish(id) do
+    GenServer.call(__MODULE__, :finish)
+  end
+
+  @doc """
+  Function handling a room who ends
+  """
+  def handle_call(:finish, _from, state) do
+    {:reply, :ok, %{state | started: false}}
+  end
+
+  @doc """
+  Get the details of the current room
+  """
+  def get_entries do
+    GenServer.call(__MODULE__, :get_entries)
+  end
+
+  @doc """
+  Function returning the current state, which contains the details of the current room 
+  """
   def handle_call(:get_entries, _from, state) do
     {:reply, state, state}
   end
