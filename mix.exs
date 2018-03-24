@@ -16,7 +16,7 @@ defmodule Network.MixProject do
 
   def application do
     [
-      applications: [:exprotobuf, :ranch],
+      applications: [:exprotobuf, :ranch, :uuid],
       extra_applications: [:logger],
       mod: {Network.Application, []}
     ]
@@ -30,7 +30,8 @@ defmodule Network.MixProject do
       {:ranch, "~> 1.4"},
       {:uuid, "~> 1.1"},
       {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
-      {:coverex, "~> 1.4.15", only: :test}
+      {:coverex, "~> 1.4.15", only: :test},
+      {:distillery, "~> 1.5", runtime: false}
     ]
   end
 end
