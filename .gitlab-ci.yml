@@ -18,6 +18,9 @@ mix:
   script:
     - mix test --cover
     - MIX_ENV=prod mix release
+  artifacts:
+    paths:
+      - _build/prod/rel/network
 
 # Permet de servir un site static avec la documentation
 pages:
