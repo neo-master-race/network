@@ -22,6 +22,13 @@ message ChatMessage {
   string user = 2;
 }
 
+message CreateRoom {
+  string id = 1;
+  int32 nbrPlayers = 2;
+  bool invite = 3; //We can still invite players
+  bool actived = 4; //Game is started ?
+}
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
@@ -29,5 +36,6 @@ message Message {
   oneof msg {
     ChatMessage chat_message = 2;
     UpdatePlayerPosition update_player_position = 3;
+    CreateRoom = 4
   }
 }
