@@ -1,4 +1,6 @@
 defmodule Network.Worker do
+:q
+:q
   use GenServer
   require Logger
 
@@ -116,12 +118,4 @@ defmodule Network.Worker do
   def handle_call(:inspect, _from, state) do
     {:reply, state, state}
   end
-
-  # Room
-  # def createRoom() do
-  # end
-  # def join() do
-  # end
-  # def updatePositon() do
-  # end
 end
