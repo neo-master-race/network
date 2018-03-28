@@ -3,7 +3,6 @@ defmodule Network.Listener do
 
   alias Messages.ChatMessage
   alias Messages.Message
-  alias Network.ClientRegistry
   alias Network.Worker
 
   def start_link(ref, socket, transport, opts) do
@@ -17,7 +16,7 @@ defmodule Network.Listener do
     id = Port.info(socket)[:id]
     {:ok, worker_pid} = Worker.start_link(socket, transport, id)
 
-    GenServer.call(
+    GenServer.cast(
       worker_pid,
       {:send_msg,
        Messages.encode(
@@ -29,7 +28,7 @@ defmodule Network.Listener do
        )}
     )
 
-    GenServer.call(
+    GenServer.cast(
       worker_pid,
       {:broadcast_msg,
        Messages.encode(
@@ -59,10 +58,8 @@ defmodule Network.Listener do
         listen(socket, transport, worker_pid)
 
       _ ->
-        state = GenServer.call(worker_pid, :inspect)
-        Logger.info("socket for client #{state.id} closed.")
+        GenServer.cast(worker_pid, :unregister)
         :ok = transport.close(socket)
-        ClientRegistry.unregister(state.id)
     end
   end
 end
