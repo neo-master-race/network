@@ -24,11 +24,11 @@ defmodule Network.Worker do
   Send a message `msg` to the client having pid = `pid`
   """
   def send_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
-    GenServer.call(pid, {:send_msg, msg})
+    GenServer.cast(pid, {:send_msg, msg})
   end
 
   def handle_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
-    GenServer.call(pid, {:handle_msg, msg})
+    GenServer.cast(pid, {:handle_msg, msg})
   end
 
   @doc """
@@ -86,31 +86,40 @@ defmodule Network.Worker do
   @doc """
   Handle an incoming message `msg`
   """
-  def handle_call({:handle_msg, msg}, _from, %{buffer: buffer} = state) do
+  def handle_cast({:handle_msg, msg}, %{buffer: buffer} = state) do
     buffer = handle_buffer(buffer <> msg, state)
-    {:reply, :ok, %{state | buffer: buffer}}
+    {:noreply, %{state | buffer: buffer}}
   end
 
   @doc """
   Broadcast a message `msg`
   """
-  def handle_call({:broadcast_msg, msg}, from, state) do
+  def handle_cast({:broadcast_msg, msg}, state) do
     Logger.info("client #{inspect(state.id)} broadcasted a message.")
-    # all but the sender
-    handle_message(msg, state)
-    # to the sender
-    handle_call({:send_msg, msg}, from, state)
 
-    {:reply, :ok, state}
+    ClientRegistry.get_entries()
+    |> Stream.reject(fn {id, _pid} -> id == state.id end)
+    |> Enum.each(fn {_id, pid} -> send_msg(pid, msg) end)
+
+    {:noreply, state}
   end
 
   @doc """
   Send a message `msg` to the client of this worker
   """
-  def handle_call({:send_msg, msg}, _from, state) do
+  def handle_cast({:send_msg, msg}, state) do
     message = <<byte_size(msg)::little-unsigned-32>> <> msg
     state.transport.send(state.socket, message)
-    {:reply, :ok, state}
+    {:noreply, state}
+  end
+
+  @doc """
+  Unregister a client from the ClientRegistry
+  """
+  def handle_cast(:unregister, state) do
+    ClientRegistry.unregister(state.id)
+    Logger.info("client #{state.id} unregistered.")
+    {:noreply, state}
   end
 
   @doc """
