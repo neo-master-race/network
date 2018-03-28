@@ -14,6 +14,7 @@ message UpdatePlayerPosition {
   Vector direction = 2;
   Vector scale = 3;
   string user = 4;
+  Vector velocity = 5;
 }
 
 // definition of a chat message
@@ -22,8 +23,7 @@ message ChatMessage {
   string user = 2;
 }
 
-message CreateRoom {
-}
+message CreateRoom {}
 
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
