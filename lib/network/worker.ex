@@ -111,6 +111,15 @@ defmodule Network.Worker do
   end
 
   @doc """
+  Unregister a client from the ClientRegistry
+  """
+  def handle_cast(:unregister, state) do
+    ClientRegistry.unregister(state.id)
+    Logger.info("client #{state.id} unregistered.")
+    {:noreply, state}
+  end
+
+  @doc """
   Returns the current `state` of the worker
   """
   def handle_call(:inspect, _from, state) do
