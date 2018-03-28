@@ -17,7 +17,7 @@ defmodule Network.Listener do
     id = Port.info(socket)[:id]
     {:ok, worker_pid} = Worker.start_link(socket, transport, id)
 
-    GenServer.call(
+    GenServer.cast(
       worker_pid,
       {:send_msg,
        Messages.encode(
@@ -29,7 +29,7 @@ defmodule Network.Listener do
        )}
     )
 
-    GenServer.call(
+    GenServer.cast(
       worker_pid,
       {:broadcast_msg,
        Messages.encode(
