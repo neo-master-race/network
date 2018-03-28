@@ -41,6 +41,6 @@ message Message {
   oneof msg {
     ChatMessage chat_message = 2;
     UpdatePlayerPosition update_player_position = 3;
-    CreateRoom = 4
+    CreateRoom create_room = 4;
   }
 }

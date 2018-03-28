@@ -1,6 +1,4 @@
 defmodule Network.Worker do
-:q
-:q
   use GenServer
   require Logger
 
