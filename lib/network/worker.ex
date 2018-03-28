@@ -53,14 +53,18 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
-      {:create_room, data} ->
-        #%{id: creator} = state
-        # %{id: id, creator: creator, nbr_players: nbrPlayers, invite: invite, activated: activated} = data
-
-        #Logger.info("User #{id} create a room.")
+      {:create_room, _data} ->
         Logger.info("Created room")
 
         Network.Room.start_link(state.id)
+
+      {:start_room, _data} ->
+        Logger.info("Started room")
+
+        # Network.Room.start()
+
+      {:join_room, data} ->
+        Logger.info("User join room")
 
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")

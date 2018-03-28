@@ -23,7 +23,11 @@ message ChatMessage {
   string user = 2;
 }
 
+// request to create a new room
 message CreateRoom {}
+
+// starts a party
+message StartRoom {}
 
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
@@ -33,5 +37,6 @@ message Message {
     ChatMessage chat_message = 2;
     UpdatePlayerPosition update_player_position = 3;
     CreateRoom create_room = 4;
+    StartRoom start_room = 5;
   }
 }
