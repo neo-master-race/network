@@ -56,8 +56,11 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:create_room, data} ->
-        %{id: creator} = state
-        Logger.info("User {#id} create a room.")
+        #%{id: creator} = state
+        %{id: id, creator: creator, nbrPlayers: nbrPlayers, invite: invite, activated: activated} = data
+
+        #Logger.info("User #{id} create a room.")
+        Logger.info("Room #{id}, created by user #{creator}. There is #{nbrPlayers} players in this room.")
 
         Network.Room.start_link(state.id)
 

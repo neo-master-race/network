@@ -24,9 +24,14 @@ message ChatMessage {
 
 message CreateRoom {
   string id = 1;
-  int32 nbrPlayers = 2;
-  bool invite = 3; //We can still invite players
-  bool actived = 4; //Game is started ?
+  string name = 2;
+  // Id of the creator of this room
+  string creator = 3;
+  int32 nbrPlayers = 4;
+  // Can we still invite players in this room ?
+  bool invite = 5;
+  // A game is stared on this room ?
+  bool actived = 6; 
 }
 
 // message that can be exchanged between the client and the server
