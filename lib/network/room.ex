@@ -27,8 +27,22 @@ defmodule Network.Room do
   @doc """
   Start the current room
   """
-  def start(id) do
+  def start() do
     GenServer.call(__MODULE__, :start)
+  end
+
+  @doc """
+  Ends the current room
+  """
+  def finish() do
+    GenServer.call(__MODULE__, :finish)
+  end
+
+  @doc """
+  Get the details of the current room
+  """
+  def get_entries do
+    GenServer.call(__MODULE__, :get_entries)
   end
 
   @doc """
@@ -39,24 +53,10 @@ defmodule Network.Room do
   end
 
   @doc """
-  Ends the current room
-  """
-  def finish(id) do
-    GenServer.call(__MODULE__, :finish)
-  end
-
-  @doc """
   Function handling a room who ends
   """
   def handle_call(:finish, _from, state) do
     {:reply, :ok, %{state | started: false}}
-  end
-
-  @doc """
-  Get the details of the current room
-  """
-  def get_entries do
-    GenServer.call(__MODULE__, :get_entries)
   end
 
   @doc """

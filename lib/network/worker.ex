@@ -55,7 +55,7 @@ defmodule Network.Worker do
 
       {:create_room, data} ->
         %{id: creator} = state
-        Logger.info("A room is created.")
+        Logger.info("User {#id} create a room.")
 
         Network.Room.start_link(state.id)
 
