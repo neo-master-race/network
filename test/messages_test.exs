@@ -12,26 +12,26 @@ defmodule Messages.MessageTest do
 
   test "create a message" do
     msg = Message.new(type: "empty")
-    encodedMsg = Message.encode(msg)
-    decodedMsg = Message.decode(encodedMsg)
-    %{type: type} = decodedMsg
+    encoded_msg = Message.encode(msg)
+    decoded_msg = Message.decode(encoded_msg)
+    %{type: type} = decoded_msg
     assert type == "empty"
   end
 
   test "create a chat message" do
     msg = ChatMessage.new(content: "This is a test.", user: "TEST")
-    encodedMsg = ChatMessage.encode(msg)
-    decodedMsg = ChatMessage.decode(encodedMsg)
-    %{content: content, user: user} = decodedMsg
+    encoded_msg = ChatMessage.encode(msg)
+    decoded_msg = ChatMessage.decode(encoded_msg)
+    %{content: content, user: user} = decoded_msg
     assert content == "This is a test."
     assert user == "TEST"
   end
 
   test "create a vector message" do
     msg = Vector.new(x: 1, y: 2, z: 3)
-    encodedMsg = Vector.encode(msg)
-    decodedMsg = Vector.decode(encodedMsg)
-    %{x: x, y: y, z: z} = decodedMsg
+    encoded_msg = Vector.encode(msg)
+    decoded_msg = Vector.decode(encoded_msg)
+    %{x: x, y: y, z: z} = decoded_msg
     assert x == 1
     assert y == 2
     assert z == 3
@@ -39,10 +39,18 @@ defmodule Messages.MessageTest do
 
   test "create a update_player_position message" do
     vec = Vector.new(x: 1, y: 2, z: 3)
-    msg = UpdatePlayerPosition.new(position: vec, direction: vec, scale: vec, user: "test")
-    encodedMsg = UpdatePlayerPosition.encode(msg)
-    decodedMsg = UpdatePlayerPosition.decode(encodedMsg)
-    %{position: p, direction: d, scale: s, user: u} = decodedMsg
+
+    msg =
+      UpdatePlayerPosition.new(
+        position: vec,
+        direction: vec,
+        scale: vec,
+        user: "test"
+      )
+
+    encoded_msg = UpdatePlayerPosition.encode(msg)
+    decoded_msg = UpdatePlayerPosition.decode(encoded_msg)
+    %{position: p, direction: d, scale: s, user: u} = decoded_msg
     assert p == vec
     assert d == vec
     assert s == vec

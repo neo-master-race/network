@@ -27,14 +27,14 @@ defmodule Network.Room do
   @doc """
   Start the current room
   """
-  def start() do
+  def start do
     GenServer.call(__MODULE__, :start)
   end
 
   @doc """
   Ends the current room
   """
-  def finish() do
+  def finish do
     GenServer.call(__MODULE__, :finish)
   end
 
@@ -60,7 +60,7 @@ defmodule Network.Room do
   end
 
   @doc """
-  Function returning the current state, which contains the details of the current room 
+  Function returning the current state, which contains the details of the current room
   """
   def handle_call(:get_entries, _from, state) do
     {:reply, state, state}

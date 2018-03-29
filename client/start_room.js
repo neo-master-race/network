@@ -1,11 +1,11 @@
 // all what we need to import
-const net = require("net");
-const messages = require("./messages_pb");
+const net = require('net');
+const messages = require('./messages_pb');
 
 const client = new net.Socket();
-client.setEncoding("utf-8");
+client.setEncoding('utf-8');
 
-client.connect(4242, "localhost", () => {
+client.connect(4242, 'localhost', () => {
   send_msg();
   client.end();
 });

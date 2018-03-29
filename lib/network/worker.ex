@@ -3,6 +3,7 @@ defmodule Network.Worker do
   require Logger
 
   alias Network.ClientRegistry
+  alias Network.Room
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -38,7 +39,12 @@ defmodule Network.Worker do
     case Messages.decode(message) do
       {:chat_message, data} ->
         %{user: user, content: content} = data
-        Logger.info("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
+
+        Logger.info(
+          "client #{inspect(state.id)} as #{user} sent message: #{
+            inspect(content)
+          }"
+        )
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -56,12 +62,12 @@ defmodule Network.Worker do
       {:create_room, _data} ->
         Logger.info("Created room")
 
-        Network.Room.start_link(state.id)
+        Room.start_link(state.id)
 
       {:start_room, _data} ->
         Logger.info("Started room")
 
-        # Network.Room.start()
+      # Room.start()
 
       {:join_room, data} ->
         Logger.info("User join room")

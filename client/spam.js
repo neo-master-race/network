@@ -12,16 +12,14 @@ client.connect(4242, 'localhost', () => {
   client.end();
 });
 
-
 function send_msg(msg) {
-  const message = msgEncode(msg, "SPAM");
+  const message = msgEncode(msg, 'SPAM');
   const buff = Buffer.from(message);
   const len = Buffer.alloc(4); // size of a uint32
   len.writeUInt32LE(buff.length);
   const data = Buffer.concat([len, buff]);
   client.write(data);
 }
-
 
 // encode a message
 function msgEncode(content, user) {

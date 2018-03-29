@@ -10,7 +10,6 @@ client.connect(4242, 'localhost', () => {
   client.end();
 });
 
-
 function send_msg() {
   const message = msgEncode();
   const buff = Buffer.from(message);
@@ -19,7 +18,6 @@ function send_msg() {
   const data = Buffer.concat([len, buff]);
   client.write(data);
 }
-
 
 // encode a message
 function msgEncode() {

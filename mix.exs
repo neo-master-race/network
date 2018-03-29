@@ -11,7 +11,12 @@ defmodule Network.MixProject do
       source_url: "https://git.unistra.fr/pi-2/network",
       homepage_url: "https://pi-2.pages.unistra.fr/network/",
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 

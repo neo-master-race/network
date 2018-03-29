@@ -23,7 +23,8 @@ defmodule Network.Listener do
          Message.new(
            type: "chat_message",
            msg:
-             {:chat_message, ChatMessage.new(content: "Welcome to the server!", user: "SERVER")}
+             {:chat_message,
+              ChatMessage.new(content: "Welcome to the server!", user: "SERVER")}
          )
        )}
     )
@@ -34,13 +35,17 @@ defmodule Network.Listener do
        Messages.encode(
          Message.new(
            type: "chat_message",
-           msg: {:chat_message, ChatMessage.new(content: "client #{id} joined!", user: "SERVER")}
+           msg:
+             {:chat_message,
+              ChatMessage.new(content: "client #{id} joined!", user: "SERVER")}
          )
        )}
     )
 
     Logger.info(
-      "client #{id} connected (listener=#{inspect(self())}, worker=#{inspect(worker_pid)})."
+      "client #{id} connected (listener=#{inspect(self())}, worker=#{
+        inspect(worker_pid)
+      })."
     )
 
     listen(socket, transport, worker_pid)
