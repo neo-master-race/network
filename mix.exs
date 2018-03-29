@@ -10,7 +10,8 @@ defmodule Network.MixProject do
       deps: deps(),
       source_url: "https://git.unistra.fr/pi-2/network",
       homepage_url: "https://pi-2.pages.unistra.fr/network/",
-      test_coverage: [tool: Coverex.Task]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 
@@ -30,7 +31,7 @@ defmodule Network.MixProject do
       {:ranch, "~> 1.4"},
       {:uuid, "~> 1.1"},
       {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
-      {:coverex, "~> 1.4.15", only: :test},
+      {:excoveralls, "~> 0.8.1", only: :test},
       {:distillery, "~> 1.5", runtime: false}
     ]
   end
