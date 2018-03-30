@@ -56,23 +56,54 @@ defmodule Messages.MessageTest do
         position: vec,
         direction: vec,
         scale: vec,
+        velocity: vec,
         user: "test"
       )
 
     encoded_msg = UpdatePlayerPosition.encode(msg)
     decoded_msg = UpdatePlayerPosition.decode(encoded_msg)
-    %{position: p, direction: d, scale: s, user: u} = decoded_msg
+    %{position: p, direction: d, scale: s, velocity: v, user: u} = decoded_msg
     assert p == vec
     assert d == vec
     assert s == vec
+    assert v == vec
     assert u == "test"
   end
 
   test "TCP connection test" do
-    {:ok, socket1} = :gen_tcp.connect('localhost', 4242, [:binary])
-    {:ok, socket2} = :gen_tcp.connect('localhost', 4242, [:binary])
-    data = %{"hello" => "world"}
-    :ok = :gen_tcp.send(socket1, Poison.encode!(data))
+    port = Application.get_env(:network, :port)
+    {:ok, socket1} = :gen_tcp.connect('localhost', port, [:binary])
+    {:ok, socket2} = :gen_tcp.connect('localhost', port, [:binary])
+
+    # send a chat_message over TCP socket
+    chat_msg = ChatMessage.new(content: "This is a test.", user: "TEST")
+    msg = Message.new(type: "chat_message", msg: {:chat_message, chat_msg})
+    encoded_msg = Messages.encode(msg)
+    data = <<byte_size(encoded_msg)::little-unsigned-32>> <> encoded_msg
+    :ok = :gen_tcp.send(socket1, data)
+
+    # send a update_player_position over TCP socket
+    vec = Vector.new(x: 1, y: 2, z: 3)
+
+    upp_msg =
+      UpdatePlayerPosition.new(
+        position: vec,
+        direction: vec,
+        scale: vec,
+        velocity: vec,
+        user: "test"
+      )
+
+    msg =
+      Message.new(
+        type: "update_player_position",
+        msg: {:update_player_position, upp_msg}
+      )
+
+    encoded_msg = Messages.encode(msg)
+    data = <<byte_size(encoded_msg)::little-unsigned-32>> <> encoded_msg
+    :ok = :gen_tcp.send(socket2, data)
+
     :ok = :gen_tcp.close(socket1)
     :ok = :gen_tcp.close(socket2)
   end
