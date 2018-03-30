@@ -5,10 +5,21 @@ defmodule Messages.MessageTest do
   alias Messages.Vector
   alias Messages.UpdatePlayerPosition
 
+  doctest Messages
   doctest Messages.Message
   doctest Messages.ChatMessage
   doctest Messages.Vector
   doctest Messages.UpdatePlayerPosition
+
+  test "create a message (with errors check)" do
+    chat_msg = ChatMessage.new(content: "This is a test.", user: "TEST")
+    msg = Message.new(type: "chat_message", msg: {:chat_message, chat_msg})
+    encoded_msg = Messages.encode(msg)
+    decoded_msg = Messages.decode(encoded_msg)
+    {:chat_message, %{content: content, user: user}} = decoded_msg
+    assert content == "This is a test."
+    assert user == "TEST"
+  end
 
   test "create a message" do
     msg = Message.new(type: "empty")
