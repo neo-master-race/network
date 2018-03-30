@@ -67,4 +67,13 @@ defmodule Messages.MessageTest do
     assert s == vec
     assert u == "test"
   end
+
+  test "TCP connection test" do
+    {:ok, socket1} = :gen_tcp.connect('localhost', 4242, [:binary])
+    {:ok, socket2} = :gen_tcp.connect('localhost', 4242, [:binary])
+    data = %{"hello" => "world"}
+    :ok = :gen_tcp.send(socket1, Poison.encode!(data))
+    :ok = :gen_tcp.close(socket1)
+    :ok = :gen_tcp.close(socket2)
+  end
 end
