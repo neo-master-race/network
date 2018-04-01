@@ -4,12 +4,14 @@ defmodule Messages.MessageTest do
   alias Messages.ChatMessage
   alias Messages.Vector
   alias Messages.UpdatePlayerPosition
+  alias Messages.UpdatePlayerStatus
 
   doctest Messages
   doctest Messages.Message
   doctest Messages.ChatMessage
   doctest Messages.Vector
   doctest Messages.UpdatePlayerPosition
+  doctest Messages.UpdatePlayerStatus
 
   test "create a message (with errors check)" do
     chat_msg = ChatMessage.new(content: "This is a test.", user: "TEST")
@@ -85,9 +87,22 @@ defmodule Messages.MessageTest do
     # send a update_player_position over TCP socket
     vec = Vector.new(x: 1, y: 2, z: 3)
 
-    upp_msg =
-      UpdatePlayerPosition.new(
-        position: vec,
+    upp_msg = UpdatePlayerPosition.new(cp_count: 42)
+
+    msg =
+      Message.new(
+        type: "update_player_position",
+        msg: {:update_player_position, upp_msg}
+      )
+
+    encoded_msg = Messages.encode(msg)
+    data = <<byte_size(encoded_msg)::little-unsigned-32>> <> encoded_msg
+    :ok = :gen_tcp.send(socket2, data)
+
+    # send a update_player_status over TCP socket
+    ups_msg =
+      UpdatePlayerStatus.new(
+        status: vec,
         direction: vec,
         scale: vec,
         velocity: vec,
@@ -96,8 +111,8 @@ defmodule Messages.MessageTest do
 
     msg =
       Message.new(
-        type: "update_player_position",
-        msg: {:update_player_position, upp_msg}
+        type: "update_player_status",
+        msg: {:update_player_status, ups_msg}
       )
 
     encoded_msg = Messages.encode(msg)

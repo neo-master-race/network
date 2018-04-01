@@ -59,6 +59,14 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
+      {:update_player_status, _data} ->
+        Logger.info("got an update player status message.")
+
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
       {:create_room, _data} ->
         Logger.info("Created room")
 
