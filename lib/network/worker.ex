@@ -4,12 +4,15 @@ defmodule Network.Worker do
 
   alias Network.ClientRegistry
   alias Network.Room
+  alias Messages.Message
+  alias Messages.Disconnect
 
   def start_link(socket, transport, id) do
     default_state = %{
       socket: socket,
       transport: transport,
       id: id,
+      client_name: "",
       buffer: ""
     }
 
@@ -51,16 +54,60 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
-      {:update_player_position, _data} ->
+      {:update_player_position, data} ->
         Logger.info("got an update player position message.")
+        %{user: user} = data
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        cond do
+          user == state.client_name ->
+            # do not send to the sender
+            ClientRegistry.get_entries()
+            |> Stream.reject(fn {id, _pid} -> id == state.id end)
+            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
-      {:update_player_status, _data} ->
+          state.client_name == "" ->
+            GenServer.cast(
+              self(),
+              {:handle_state, %{state | client_name: user}}
+            )
+
+            # do not send to the sender
+            ClientRegistry.get_entries()
+            |> Stream.reject(fn {id, _pid} -> id == state.id end)
+            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
+          true ->
+            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
+        end
+
+      {:update_player_status, data} ->
         Logger.info("got an update player status message.")
+        %{user: user} = data
+
+        cond do
+          user == state.client_name ->
+            # do not send to the sender
+            ClientRegistry.get_entries()
+            |> Stream.reject(fn {id, _pid} -> id == state.id end)
+            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
+          state.client_name == "" ->
+            GenServer.cast(
+              self(),
+              {:handle_state, %{state | client_name: user}}
+            )
+
+            # do not send to the sender
+            ClientRegistry.get_entries()
+            |> Stream.reject(fn {id, _pid} -> id == state.id end)
+            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
+          true ->
+            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
+        end
+
+      {:disconnect, _data} ->
+        Logger.info("got a disconnect message.")
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -101,6 +148,10 @@ defmodule Network.Worker do
     end
   end
 
+  def handle_cast({:handle_state, newstate}, _state) do
+    {:noreply, newstate}
+  end
+
   @doc """
   Handle an incoming message `msg`
   """
@@ -135,8 +186,20 @@ defmodule Network.Worker do
   Unregister a client from the ClientRegistry
   """
   def handle_cast(:unregister, state) do
+    Logger.info("client #{state.id} (#{state.client_name}) unregistered.")
+    GenServer.cast(
+      self(),
+      {:broadcast_msg,
+       Messages.encode(
+         Message.new(
+           type: "disconnect",
+           msg:
+             {:disconnect,
+              Disconnect.new(user: state.client_name)}
+         )
+       )}
+    )
     ClientRegistry.unregister(state.id)
-    Logger.info("client #{state.id} unregistered.")
     {:noreply, state}
   end
 

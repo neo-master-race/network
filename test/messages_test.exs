@@ -87,7 +87,14 @@ defmodule Messages.MessageTest do
     # send a update_player_position over TCP socket
     vec = Vector.new(x: 1, y: 2, z: 3)
 
-    upp_msg = UpdatePlayerPosition.new(cp_count: 42)
+    upp_msg =
+      UpdatePlayerPosition.new(
+        status: vec,
+        direction: vec,
+        scale: vec,
+        velocity: vec,
+        user: "test"
+      )
 
     msg =
       Message.new(
@@ -102,11 +109,8 @@ defmodule Messages.MessageTest do
     # send a update_player_status over TCP socket
     ups_msg =
       UpdatePlayerStatus.new(
-        status: vec,
-        direction: vec,
-        scale: vec,
-        velocity: vec,
-        user: "test"
+        user: "test",
+        cp_count: 42
       )
 
     msg =
