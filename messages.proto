@@ -34,6 +34,11 @@ message ChatMessage {
   string user = 2;
 }
 
+// when a user is disconnecting, he will automatically send this kind of message to others
+message Disconnect {
+  string user = 1;
+}
+
 // request to create a new room
 message CreateRoom {}
 
@@ -49,7 +54,8 @@ message Message {
     ChatMessage chat_message = 2;
     UpdatePlayerPosition update_player_position = 3;
     UpdatePlayerStatus update_player_status = 4;
-    CreateRoom create_room = 5;
-    StartRoom start_room = 6;
+    Disconnect disconnect = 5;
+    CreateRoom create_room = 6;
+    StartRoom start_room = 7;
   }
 }
