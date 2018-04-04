@@ -27,8 +27,8 @@ defmodule Network.Room do
   @doc """
   Start the current room
   """
-  def start do
-    GenServer.call(__MODULE__, :start)
+  def start(pid) do
+    GenServer.call(__MODULE__, {:start, pid})
   end
 
   @doc """

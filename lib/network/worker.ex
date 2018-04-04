@@ -13,7 +13,8 @@ defmodule Network.Worker do
       transport: transport,
       id: id,
       client_name: "",
-      buffer: ""
+      buffer: "",
+      current_room: nil
     }
 
     GenServer.start_link(__MODULE__, default_state)
@@ -121,10 +122,13 @@ defmodule Network.Worker do
       {:create_room, _data} ->
         Logger.info("Created room")
 
-        Room.start_link(state.id)
+        {:ok, pid} = Room.start_link(state.id)
+        GenServer.cast(self(), {:handle_state, %{state | current_room: pid}})
 
       {:start_room, _data} ->
         Logger.info("Started room")
+
+        Room.start(state.current_room)
 
       {:join_room, _data} ->
         Logger.info("User join room")
@@ -139,6 +143,10 @@ defmodule Network.Worker do
 
   Useful when many messages are coming at the same time, or if messages are too long.
   """
+  def room_exist(pid) do
+    GenServer.call(__MODULE__)
+  end
+
   def handle_buffer(buffer, state) do
     case buffer do
       <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
