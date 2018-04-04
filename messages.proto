@@ -34,10 +34,9 @@ message ChatMessage {
   string user = 2;
 }
 
-// when a user is disconnecting, he will automatically send this kind of message to others
-message Disconnect {
-  string user = 1;
-}
+// when a user is disconnecting, he will automatically send this kind of message
+// to others
+message Disconnect { string user = 1; }
 
 // request to create a new room
 message CreateRoom {}
@@ -45,6 +44,8 @@ message CreateRoom {}
 // starts a game
 message StartRoom {}
 
+// join a room
+message JoinRoom {}
 
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
@@ -57,5 +58,6 @@ message Message {
     Disconnect disconnect = 5;
     CreateRoom create_room = 6;
     StartRoom start_room = 7;
+    JoinRoom join_room = 8;
   }
 }

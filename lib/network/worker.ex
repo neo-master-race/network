@@ -77,7 +77,9 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
           true ->
-            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
+            Logger.warn(
+              'permissions error when trying to handle #{inspect(data)}.'
+            )
         end
 
       {:update_player_status, data} ->
@@ -103,7 +105,9 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
           true ->
-            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
+            Logger.warn(
+              'permissions error when trying to handle #{inspect(data)}.'
+            )
         end
 
       {:disconnect, _data} ->
@@ -122,9 +126,7 @@ defmodule Network.Worker do
       {:start_room, _data} ->
         Logger.info("Started room")
 
-      # Room.start()
-
-      {:join_room, data} ->
+      {:join_room, _data} ->
         Logger.info("User join room")
 
       _ ->
@@ -187,18 +189,18 @@ defmodule Network.Worker do
   """
   def handle_cast(:unregister, state) do
     Logger.info("client #{state.id} (#{state.client_name}) unregistered.")
+
     GenServer.cast(
       self(),
       {:broadcast_msg,
        Messages.encode(
          Message.new(
            type: "disconnect",
-           msg:
-             {:disconnect,
-              Disconnect.new(user: state.client_name)}
+           msg: {:disconnect, Disconnect.new(user: state.client_name)}
          )
        )}
     )
+
     ClientRegistry.unregister(state.id)
     {:noreply, state}
   end
