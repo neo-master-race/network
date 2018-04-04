@@ -28,6 +28,9 @@ message UpdatePlayerStatus {
   string user = 7;
 }
 
+// request other players status
+message UpdatePlayerStatusRequest {}
+
 // definition of a chat message
 message ChatMessage {
   string content = 1;
@@ -56,8 +59,9 @@ message Message {
     UpdatePlayerPosition update_player_position = 3;
     UpdatePlayerStatus update_player_status = 4;
     Disconnect disconnect = 5;
-    CreateRoom create_room = 6;
-    StartRoom start_room = 7;
-    JoinRoom join_room = 8;
+    UpdatePlayerStatusRequest update_player_status_request = 6;
+    CreateRoom create_room = 7;
+    StartRoom start_room = 8;
+    JoinRoom join_room = 9;
   }
 }

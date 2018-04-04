@@ -104,12 +104,15 @@ defmodule Network.Worker do
             ClientRegistry.get_entries()
             |> Stream.reject(fn {id, _pid} -> id == state.id end)
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
-
-          true ->
-            Logger.warn(
-              'permissions error when trying to handle #{inspect(data)}.'
-            )
         end
+
+      {:update_player_status_request, data} ->
+        Logger.info("got an update player status request message.")
+
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:disconnect, _data} ->
         Logger.info("got a disconnect message.")
