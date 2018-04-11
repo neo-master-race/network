@@ -17,7 +17,7 @@ defmodule Network.Room do
       started: false
     }
 
-    GenServer.start_link(__MODULE__, default_state, name: __MODULE__)
+    GenServer.start_link(__MODULE__, default_state)
   end
 
   def init(default) do
