@@ -3,6 +3,7 @@ defmodule Network.Worker do
   require Logger
 
   alias Network.ClientRegistry
+  alias Network.RoomRegistry
   alias Network.Room
   alias Messages.Message
   alias Messages.Disconnect
@@ -44,7 +45,11 @@ defmodule Network.Worker do
       {:chat_message, data} ->
         %{user: user, content: content} = data
 
-        Logger.info("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
+        Logger.info(
+          "client #{inspect(state.id)} as #{user} sent message: #{
+            inspect(content)
+          }"
+        )
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -74,7 +79,9 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
           true ->
-            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
+            Logger.warn(
+              'permissions error when trying to handle #{inspect(data)}.'
+            )
         end
 
       {:update_player_status, data} ->
@@ -132,7 +139,7 @@ defmodule Network.Worker do
 
         Logger.info("Room #{inspect(pid)} [#{state.current_room}] created")
 
-      # RoomRegistry.register({state.id, state.current_room})
+        RoomRegistry.register({state.id, pid})
 
       {:start_room, _data} ->
         Logger.info("Started room")
