@@ -132,7 +132,7 @@ defmodule Network.Worker do
 
         Logger.info("Room #{inspect(pid)} [#{state.current_room}] created")
 
-      # RoomRegistry.register({state.id, state.current_room})
+        RoomRegistry.register({state.id, pid})
 
       {:start_room, _data} ->
         Logger.info("Started room")
