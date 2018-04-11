@@ -129,12 +129,15 @@ defmodule Network.Worker do
         Logger.info("Request to created room.")
 
         {:ok, pid} = Room.start_link(state.id)
+        %{id: room_id} = GenServer.call(pid, :get_entries)
+
         GenServer.cast(self(), {:set_current_room, pid})
 
         Logger.info("Room #{inspect(pid)} created")
 
-        RoomRegistry.register({state.id, pid})
+        RoomRegistry.register({room_id, pid})
 
+<<<<<<< HEAD
       {:start_room, _data} ->
         %{create_room: current_room} = state
         Logger.info("Request to started the current room")
@@ -142,6 +145,17 @@ defmodule Network.Worker do
         Logger.info("Test: #{state.current_room}")
 
       # Room.start(state.current_room)
+=======
+      {:start_room, data} ->
+        Logger.info("Started room")
+
+        %{id: room_id} = data
+        %{^room_id => room_pid} = RoomRegistry.get_entries()
+        GenServer.cast(room_pid, :start)
+
+        Logger.info(inspect(RoomRegistry.get_entries()))
+        Logger.info(inspect(GenServer.call(room_pid, :get_entries)))
+>>>>>>> 88d9cafdc6f743588700b6fca4478dd6c69eea30
 
       {:join_room, _data} ->
         Logger.info("User join room")

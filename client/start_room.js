@@ -23,6 +23,7 @@ function send_msg() {
 function msgEncode() {
   const message = new messages.Message();
   const startRoom = new messages.StartRoom();
+  startRoom.setId('148d88bb-9c38-4ac6-9b79-c65090d2354a');
   message.setStartRoom(startRoom);
   return message.serializeBinary();
 }

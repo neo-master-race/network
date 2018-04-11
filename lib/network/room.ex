@@ -48,8 +48,8 @@ defmodule Network.Room do
   @doc """
   Function handling a room who starts
   """
-  def handle_call(:start, _from, state) do
-    {:reply, :ok, %{state | started: true}}
+  def handle_cast(:start, state) do
+    {:noreply, %{state | started: true}}
   end
 
   @doc """
