@@ -45,10 +45,14 @@ message Disconnect { string user = 1; }
 message CreateRoom {}
 
 // starts a game
-message StartRoom {}
+message StartRoom {
+  string id = 1;
+}
 
 // join a room
-message JoinRoom {}
+message JoinRoom {
+  string id = 1;
+}
 
 message StartingPosition {
   repeated int32 position = 1;
