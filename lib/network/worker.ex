@@ -114,6 +114,14 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
+      {:starting_position, data} ->
+        Logger.info("got a staring position message.")
+
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+
       {:disconnect, _data} ->
         Logger.info("got a disconnect message.")
 
