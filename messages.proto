@@ -50,6 +50,10 @@ message StartRoom {}
 // join a room
 message JoinRoom {}
 
+message StartingPosition {
+  repeated int32 position = 1;
+}
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
@@ -63,5 +67,6 @@ message Message {
     CreateRoom create_room = 7;
     StartRoom start_room = 8;
     JoinRoom join_room = 9;
+    StartingPosition starting_position = 10;
   }
 }
