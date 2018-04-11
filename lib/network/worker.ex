@@ -69,7 +69,7 @@ defmodule Network.Worker do
           state.client_name == "" ->
             GenServer.cast(
               self(),
-              {:handle_state, %{state | client_name: user}}
+              {:set_client_name, user}
             )
 
             # do not send to the sender
@@ -97,7 +97,7 @@ defmodule Network.Worker do
           state.client_name == "" ->
             GenServer.cast(
               self(),
-              {:handle_state, %{state | client_name: user}}
+              {:set_client_name, user}
             )
 
             # do not send to the sender
@@ -126,7 +126,7 @@ defmodule Network.Worker do
         Logger.info("Created room")
 
         {:ok, pid} = Room.start_link(state.id)
-        GenServer.cast(self(), {:handle_state, %{state | current_room: pid}})
+        GenServer.cast(self(), {:set_current_room, pid})
 
       {:start_room, _data} ->
         Logger.info("Started room")
@@ -161,8 +161,18 @@ defmodule Network.Worker do
     end
   end
 
-  def handle_cast({:handle_state, newstate}, _state) do
-    {:noreply, newstate}
+  @doc """
+  Setter for client name
+  """
+  def handle_cast({:set_client_name, user}, state) do
+    {:noreply, %{state | client_name: user}}
+  end
+
+  @doc """
+  Setter for current room
+  """
+  def handle_cast({:set_current_room, pid}, state) do
+    {:noreply, %{state | current_room: pid}}
   end
 
   @doc """

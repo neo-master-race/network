@@ -131,6 +131,7 @@ defmodule Messages.MessageTest do
         type: "update_player_status_request",
         msg: {:update_player_status_request, UpdatePlayerStatusRequest.new()}
       )
+
     encoded_msg = Messages.encode(msg)
     data = <<byte_size(encoded_msg)::little-unsigned-32>> <> encoded_msg
     :ok = :gen_tcp.send(socket2, data)
