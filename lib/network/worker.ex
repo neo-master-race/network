@@ -108,7 +108,7 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
-      {:starting_position, data} ->
+      {:starting_position, _data} ->
         Logger.info("got a staring position message.")
 
         # do not send to the sender
@@ -125,23 +125,14 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:create_room, _data} ->
-        Logger.info("Created room.")
+        Logger.info("Request of created room.")
 
         {:ok, pid} = Room.start_link(state.id)
         GenServer.cast(self(), {:set_current_room, pid})
 
-      ## x = Room.start_link(state.id)
+        Logger.info("Room #{inspect(pid)} [#{state.current_room}] created")
 
-      ## case x do
-      ##   {:ok, pid} ->
-      ##     GenServer.cast(self(), {:set_current_room, pid})
-
-      ##   {:error, {:already_started, pid}} ->
-      ##     Logger.info("Room #{pid} already started.")
-
-      ##   _ ->
-      ##     nil
-      ## end
+      # RoomRegistry.register({state.id, state.current_room})
 
       {:start_room, _data} ->
         Logger.info("Started room")
