@@ -44,11 +44,7 @@ defmodule Network.Worker do
       {:chat_message, data} ->
         %{user: user, content: content} = data
 
-        Logger.info(
-          "client #{inspect(state.id)} as #{user} sent message: #{
-            inspect(content)
-          }"
-        )
+        Logger.info("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -78,9 +74,7 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
           true ->
-            Logger.warn(
-              'permissions error when trying to handle #{inspect(data)}.'
-            )
+            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
         end
 
       {:update_player_status, data} ->
@@ -106,7 +100,7 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
         end
 
-      {:update_player_status_request, data} ->
+      {:update_player_status_request, _data} ->
         Logger.info("got an update player status request message.")
 
         # do not send to the sender
@@ -123,10 +117,23 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:create_room, _data} ->
-        Logger.info("Created room")
+        Logger.info("Created room.")
 
         {:ok, pid} = Room.start_link(state.id)
         GenServer.cast(self(), {:set_current_room, pid})
+
+      ## x = Room.start_link(state.id)
+
+      ## case x do
+      ##   {:ok, pid} ->
+      ##     GenServer.cast(self(), {:set_current_room, pid})
+
+      ##   {:error, {:already_started, pid}} ->
+      ##     Logger.info("Room #{pid} already started.")
+
+      ##   _ ->
+      ##     nil
+      ## end
 
       {:start_room, _data} ->
         Logger.info("Started room")
@@ -141,15 +148,15 @@ defmodule Network.Worker do
     end
   end
 
+  ## def room_exist(pid) do
+  ##  GenServer.call(__MODULE__)
+  ## end
+
   @doc """
   Handling the `buffer` when getting some datas.
 
   Useful when many messages are coming at the same time, or if messages are too long.
   """
-  def room_exist(pid) do
-    GenServer.call(__MODULE__)
-  end
-
   def handle_buffer(buffer, state) do
     case buffer do
       <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
