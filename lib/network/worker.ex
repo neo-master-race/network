@@ -45,11 +45,7 @@ defmodule Network.Worker do
       {:chat_message, data} ->
         %{user: user, content: content} = data
 
-        Logger.info(
-          "client #{inspect(state.id)} as #{user} sent message: #{
-            inspect(content)
-          }"
-        )
+        Logger.info("client #{inspect(state.id)} as #{user} sent message: #{inspect(content)}")
 
         # do not send to the sender
         ClientRegistry.get_entries()
@@ -79,9 +75,7 @@ defmodule Network.Worker do
             |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
           true ->
-            Logger.warn(
-              'permissions error when trying to handle #{inspect(data)}.'
-            )
+            Logger.warn('permissions error when trying to handle #{inspect(data)}.')
         end
 
       {:update_player_status, data} ->
@@ -132,19 +126,22 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:create_room, _data} ->
-        Logger.info("Request of created room.")
+        Logger.info("Request to created room.")
 
         {:ok, pid} = Room.start_link(state.id)
         GenServer.cast(self(), {:set_current_room, pid})
 
-        Logger.info("Room #{inspect(pid)} [#{state.current_room}] created")
+        Logger.info("Room #{inspect(pid)} created")
 
         RoomRegistry.register({state.id, pid})
 
       {:start_room, _data} ->
-        Logger.info("Started room")
+        %{create_room: current_room} = state
+        Logger.info("Request to started the current room")
 
-        Room.start(state.current_room)
+        Logger.info("Test: #{state.current_room}")
+
+      # Room.start(state.current_room)
 
       {:join_room, _data} ->
         Logger.info("User join room")
