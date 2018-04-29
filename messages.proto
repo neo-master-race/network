@@ -26,6 +26,9 @@ message UpdatePlayerStatus {
   int32 next_checkpoint_number = 5;
   int32 supposed_next_checkpoint_number = 6;
   string user = 7;
+  int32 virtual_lap_count = 8;
+  int32 last_hitted_cp = 9;
+  int32 second_last_hitted_cp = 10;
 }
 
 // request other players status
