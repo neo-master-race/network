@@ -1,14 +1,16 @@
 defmodule Network.Worker do
+  import Ecto.Query, only: [from: 2]
   use GenServer
   require Logger
 
   alias Network.ClientRegistry
-  alias Network.RoomRegistry
+  alias Network.Repo
   alias Network.Room
-  alias Messages.Message
-  alias Messages.LoginResponse
-  alias Messages.RegisterResponse
+  alias Network.RoomRegistry
   alias Messages.Disconnect
+  alias Messages.LoginResponse
+  alias Messages.Message
+  alias Messages.RegisterResponse
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -162,6 +164,10 @@ defmodule Network.Worker do
         %{username: username, password: password} = data
         Logger.info("#{username} tried to log in")
 
+        query = from u in "users", where: u.username == ^username, where: u.password == ^password, select: u.username
+        res = Repo.all(query)
+        success = length(res) > 0
+
         GenServer.cast(
           self(),
           {:send_msg,
@@ -170,15 +176,17 @@ defmodule Network.Worker do
                type: "login_response",
                msg:
                  {:login_response,
-                  LoginResponse.new(success: true, user: username)}
+                  LoginResponse.new(success: success, username: username)}
              )
            )}
         )
 
       {:register_request, data} ->
         %{username: username, password: password} = data
-
         Logger.info("#{username} tried to register")
+
+        query = from u in "users", where: u.username == ^username, select: u.username
+        res = Repo.all(query)
 
         GenServer.cast(
           self(),
@@ -188,7 +196,7 @@ defmodule Network.Worker do
                type: "register_response",
                msg:
                  {:register_response,
-                  RegisterResponse.new(success: true, user: username)}
+                  RegisterResponse.new(success: true, username: username)}
              )
            )}
         )
