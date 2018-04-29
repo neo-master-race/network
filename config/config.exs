@@ -11,4 +11,4 @@ config :network, Network.Repo,
   password: "pi2",
   hostname: "localhost"
 
-import_config "#{Mix.env}.exs"
+# import_config "#{Mix.env}.exs"
