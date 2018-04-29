@@ -35,6 +35,8 @@ defmodule Network.MixProject do
       {:exprotobuf, "~> 1.2"},
       {:ranch, "~> 1.4"},
       {:uuid, "~> 1.1"},
+      {:mariaex, "~> 0.8.4"},
+      {:ecto, "~> 2.2"},
       {:credo, "~> 0.9.0-rc1", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.8.1", only: :test},
       {:distillery, "~> 1.5", runtime: false}
