@@ -156,6 +156,17 @@ defmodule Network.Worker do
       {:join_room, _data} ->
         Logger.info("User join room")
 
+      {:login_request, data} ->
+        %{username: username, password: password} = data
+        Logger.info("#{username} tried to log in using #{password} as password")
+
+      {:register_request, data} ->
+        %{username: username, password: password} = data
+
+        Logger.info(
+          "#{username} tried to register using #{password} as password"
+        )
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end
