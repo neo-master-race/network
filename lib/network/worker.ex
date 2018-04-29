@@ -6,6 +6,8 @@ defmodule Network.Worker do
   alias Network.RoomRegistry
   alias Network.Room
   alias Messages.Message
+  alias Messages.LoginResponse
+  alias Messages.RegisterResponse
   alias Messages.Disconnect
 
   def start_link(socket, transport, id) do
@@ -158,13 +160,37 @@ defmodule Network.Worker do
 
       {:login_request, data} ->
         %{username: username, password: password} = data
-        Logger.info("#{username} tried to log in using #{password} as password")
+        Logger.info("#{username} tried to log in")
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "login_response",
+               msg:
+                 {:login_response,
+                  LoginResponse.new(success: true, user: username)}
+             )
+           )}
+        )
 
       {:register_request, data} ->
         %{username: username, password: password} = data
 
-        Logger.info(
-          "#{username} tried to register using #{password} as password"
+        Logger.info("#{username} tried to register")
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "register_response",
+               msg:
+                 {:register_response,
+                  RegisterResponse.new(success: true, user: username)}
+             )
+           )}
         )
 
       _ ->

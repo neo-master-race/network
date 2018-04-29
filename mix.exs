@@ -22,7 +22,7 @@ defmodule Network.MixProject do
 
   def application do
     [
-      applications: [:exprotobuf, :ranch, :uuid],
+      applications: [:exprotobuf, :ranch, :uuid, :ecto],
       extra_applications: [:logger],
       mod: {Network.Application, []}
     ]
