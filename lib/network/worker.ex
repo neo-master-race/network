@@ -7,6 +7,7 @@ defmodule Network.Worker do
   alias Network.Repo
   alias Network.Room
   alias Network.RoomRegistry
+  alias Network.User
   alias Messages.Disconnect
   alias Messages.LoginResponse
   alias Messages.Message
@@ -164,7 +165,14 @@ defmodule Network.Worker do
         %{username: username, password: password} = data
         Logger.info("#{username} tried to log in")
 
-        query = from u in "users", where: u.username == ^username, where: u.password == ^password, select: u.username
+        query =
+          from(
+            u in "users",
+            where: u.username == ^username,
+            where: u.password == ^password,
+            select: u.username
+          )
+
         res = Repo.all(query)
         success = length(res) > 0
 
@@ -185,8 +193,11 @@ defmodule Network.Worker do
         %{username: username, password: password} = data
         Logger.info("#{username} tried to register")
 
-        query = from u in "users", where: u.username == ^username, select: u.username
-        res = Repo.all(query)
+        u =
+          User.changeset(%Network.User{}, %{username: "root", password: "root"})
+
+        {status, _data} = Repo.insert(u)
+        success = status == :ok
 
         GenServer.cast(
           self(),
@@ -196,7 +207,7 @@ defmodule Network.Worker do
                type: "register_response",
                msg:
                  {:register_response,
-                  RegisterResponse.new(success: true, username: username)}
+                  RegisterResponse.new(success: success, username: username)}
              )
            )}
         )
