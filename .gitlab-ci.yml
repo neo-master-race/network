@@ -20,10 +20,10 @@ release:
   tags:
     - docker
   script:
-    - mix compile
-    - mix ecto.migrate
-    - mix credo -a --strict || echo '!! Need to improve code.'
-    - mix test --cover
+    - MIX_ENV=gitlab mix compile
+    - MIX_ENV=gitlab mix ecto.migrate
+    - MIX_ENV=gitlab mix credo -a --strict || echo '!! Need to improve code.'
+    - MIX_ENV=gitlab mix test --cover
     - MIX_ENV=prod mix release
     - mv _build/prod/rel/network network
     - rm -rf network/releases
