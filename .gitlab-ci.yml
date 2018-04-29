@@ -1,7 +1,12 @@
 image: elixir:latest
 
 services:
-  # - mysql:latest
+  - mysql:latest
+
+variables:
+  MYSQL_DATABASE: pi2
+  MYSQL_USER: pi2
+  MYSQL_PASSWORD: pi2
 
 # Préparation de l'environnement avant de pouvoir effectuer les tests
 before_script:
@@ -15,6 +20,7 @@ release:
     - docker
   script:
     - mix compile
+    - mix ecto.migrate
     - mix credo -a --strict || echo '!! Need to improve code.'
     - mix test --cover
     - MIX_ENV=prod mix release
