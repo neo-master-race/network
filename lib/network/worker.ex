@@ -169,12 +169,21 @@ defmodule Network.Worker do
           from(
             u in "users",
             where: u.username == ^username,
-            where: u.password == ^password,
-            select: u.username
+            select: u.password
           )
 
         res = Repo.all(query)
         success = length(res) > 0
+
+        success =
+          case success do
+            true ->
+              pass = List.first(res)
+              Bcrypt.verify_pass(password, pass)
+
+            _ ->
+              false
+          end
 
         GenServer.cast(
           self(),
@@ -196,7 +205,7 @@ defmodule Network.Worker do
         u =
           User.changeset(%Network.User{}, %{
             username: username,
-            password: password
+            password: Bcrypt.hash_pwd_salt(password)
           })
 
         {status, _data} = Repo.insert(u)
