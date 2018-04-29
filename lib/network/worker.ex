@@ -194,7 +194,10 @@ defmodule Network.Worker do
         Logger.info("#{username} tried to register")
 
         u =
-          User.changeset(%Network.User{}, %{username: "root", password: "root"})
+          User.changeset(%Network.User{}, %{
+            username: username,
+            password: password
+          })
 
         {status, _data} = Repo.insert(u)
         success = status == :ok
