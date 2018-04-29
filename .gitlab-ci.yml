@@ -5,6 +5,7 @@ services:
 
 variables:
   MYSQL_DATABASE: pi2
+  MYSQL_ROOT_PASSWORD: pi2
   MYSQL_USER: pi2
   MYSQL_PASSWORD: pi2
 
