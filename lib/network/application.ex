@@ -9,6 +9,7 @@ defmodule Network.Application do
 
   def start(_type, _args) do
     children = [
+      Network.Repo,
       {Network.ClientRegistry, []},
       {Network.RoomRegistry, []},
       %{

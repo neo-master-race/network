@@ -1,12 +1,17 @@
 defmodule Network.Worker do
+  import Ecto.Query, only: [from: 2]
   use GenServer
   require Logger
 
   alias Network.ClientRegistry
-  alias Network.RoomRegistry
+  alias Network.Repo
   alias Network.Room
-  alias Messages.Message
+  alias Network.RoomRegistry
+  alias Network.User
   alias Messages.Disconnect
+  alias Messages.LoginResponse
+  alias Messages.Message
+  alias Messages.RegisterResponse
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -159,6 +164,69 @@ defmodule Network.Worker do
 
       {:join_room, _data} ->
         Logger.info("User join room")
+
+      {:login_request, data} ->
+        %{username: username, password: password} = data
+        Logger.info("#{username} tried to log in")
+
+        query =
+          from(
+            u in "users",
+            where: u.username == ^username,
+            select: u.password
+          )
+
+        res = Repo.all(query)
+        success = length(res) > 0
+
+        success =
+          case success do
+            true ->
+              pass = List.first(res)
+              Bcrypt.verify_pass(password, pass)
+
+            _ ->
+              false
+          end
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "login_response",
+               msg:
+                 {:login_response,
+                  LoginResponse.new(success: success, username: username)}
+             )
+           )}
+        )
+
+      {:register_request, data} ->
+        %{username: username, password: password} = data
+        Logger.info("#{username} tried to register")
+
+        u =
+          User.changeset(%Network.User{}, %{
+            username: username,
+            password: Bcrypt.hash_pwd_salt(password)
+          })
+
+        {status, _data} = Repo.insert(u)
+        success = status == :ok
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "register_response",
+               msg:
+                 {:register_response,
+                  RegisterResponse.new(success: success, username: username)}
+             )
+           )}
+        )
 
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")

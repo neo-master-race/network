@@ -26,6 +26,9 @@ message UpdatePlayerStatus {
   int32 next_checkpoint_number = 5;
   int32 supposed_next_checkpoint_number = 6;
   string user = 7;
+  int32 virtual_lap_count = 8;
+  int32 last_hitted_cp = 9;
+  int32 second_last_hitted_cp = 10;
 }
 
 // request other players status
@@ -58,6 +61,26 @@ message StartingPosition {
   repeated int32 position = 1;
 }
 
+message RegisterRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  bool success = 1;
+  string username = 2;
+}
+
+message LoginResponse {
+  bool success = 1;
+  string username = 2;
+}
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
@@ -72,5 +95,9 @@ message Message {
     StartRoom start_room = 8;
     JoinRoom join_room = 9;
     StartingPosition starting_position = 10;
+    RegisterRequest register_request = 11;
+    LoginRequest login_request = 12;
+    RegisterResponse register_response = 13;
+    LoginResponse login_response = 14;
   }
 }
