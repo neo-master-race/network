@@ -8,8 +8,7 @@ config :network, Network.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "pi2",
   username: "pi2",
-  password: "pi2"
-
-# hostname: "localhost"
+  password: "pi2",
+  hostname: "localhost"
 
 # import_config "#{Mix.env}.exs"
