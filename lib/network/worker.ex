@@ -12,6 +12,9 @@ defmodule Network.Worker do
   alias Messages.LoginResponse
   alias Messages.Message
   alias Messages.RegisterResponse
+  alias Messages.RoomListResponse
+  alias Messages.RoomListItem
+  alias Messages.Player
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -256,6 +259,37 @@ defmodule Network.Worker do
 
       {:room_list_request, _data} ->
         Logger.info("#{state.client_name} asked for room list")
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "room_list_response",
+               msg:
+                 {:room_list_response,
+                  RoomListResponse.new(
+                    room_list: [
+                      RoomListItem.new(
+                        id: "424242424244242",
+                        room_type: 0,
+                        id_circuit: 1,
+                        max_players: 4,
+                        nb_players: 1,
+                        players: [
+                          Player.new(
+                            username: "ludovic",
+                            nb_races: 42,
+                            nb_wins: 42,
+                            record: "00:00:42"
+                          )
+                        ]
+                      )
+                    ]
+                  )}
+             )
+           )}
+        )
 
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
