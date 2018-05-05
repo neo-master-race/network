@@ -20,7 +20,9 @@ defmodule Network.Worker do
       id: id,
       client_name: "",
       buffer: "",
-      current_room: nil
+      current_room: nil,
+      registred_user: false,
+      database_id: 0
     }
 
     GenServer.start_link(__MODULE__, default_state)
@@ -139,8 +141,21 @@ defmodule Network.Worker do
       {:create_room, _data} ->
         Logger.info("Request to created room.")
 
+        # creator
         {:ok, pid} = Room.start_link(state.id)
         %{id: room_id} = GenServer.call(pid, :get_entries)
+
+        GenServer.cast(
+          pid,
+          {:add_player,
+           %{
+             id: state.id,
+             username: state.client_name,
+             nb_races: 256,
+             nb_wins: 242,
+             record: "00:42:42"
+           }}
+        )
 
         GenServer.cast(self(), {:set_current_room, pid})
 
@@ -185,6 +200,10 @@ defmodule Network.Worker do
               false
           end
 
+        if success do
+          GenServer.cast(self(), {:set_registred_user, username})
+        end
+
         GenServer.cast(
           self(),
           {:send_msg,
@@ -211,6 +230,10 @@ defmodule Network.Worker do
         {status, _data} = Repo.insert(u)
         success = status == :ok
 
+        if success do
+          GenServer.cast(self(), {:set_registred_user, username})
+        end
+
         GenServer.cast(
           self(),
           {:send_msg,
@@ -223,6 +246,9 @@ defmodule Network.Worker do
              )
            )}
         )
+
+      {:room_list_request, _data} ->
+        Logger.info("#{state.client_name} asked for room list")
 
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
@@ -247,6 +273,20 @@ defmodule Network.Worker do
       buffer ->
         buffer
     end
+  end
+
+  @doc """
+  Setter for registred user
+  """
+  def handle_cast({:set_registred_user, user}, state) do
+    {:noreply, %{state | registred_user: true, client_name: user}}
+  end
+
+  @doc """
+  Setter for unregistred user (for loggin out)
+  """
+  def handle_cast(:set_unregistred_user, state) do
+    {:noreply, %{state | registred_user: false, client_name: ""}}
   end
 
   @doc """

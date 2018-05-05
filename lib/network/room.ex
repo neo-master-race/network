@@ -52,6 +52,12 @@ defmodule Network.Room do
     {:noreply, %{state | started: true}}
   end
 
+  def handle_cast({:add_player, player}, state) do
+    %{id: player_id} = player
+    players = Map.put(state.players, player_id, player)
+    {:noreply, %{state | players: players}}
+  end
+
   @doc """
   Function handling a room who ends
   """
