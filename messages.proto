@@ -45,7 +45,33 @@ message ChatMessage {
 message Disconnect { string user = 1; }
 
 // request to create a new room
-message CreateRoom {}
+message CreateRoom {
+  int32 room_type = 1;
+  int32 id_circuit = 2;
+  int32 max_players = 3;
+}
+
+message RoomListRequest {}
+
+message RoomListResponse {
+  repeated RoomListItem room_list = 1;
+}
+
+message RoomListItem {
+  string id = 1;
+  int32 room_type = 2;
+  int32 id_circuit = 3;
+  int32 max_players = 4;
+  int32 nb_players = 5;
+  repeated Player players = 6;
+}
+
+message Player {
+  string username = 1;
+  int32 nb_races = 2;
+  int32 nb_wins = 3;
+  string record = 4;
+}
 
 // starts a game
 message StartRoom {
@@ -99,5 +125,7 @@ message Message {
     LoginRequest login_request = 12;
     RegisterResponse register_response = 13;
     LoginResponse login_response = 14;
+    RoomListRequest room_list_request = 15;
+    RoomListResponse room_list_response = 16;
   }
 }
