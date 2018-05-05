@@ -40,6 +40,20 @@ defmodule Network.Worker do
     GenServer.cast(pid, {:send_msg, msg})
   end
 
+  def add_me_as_room_player(room_pid, state) do
+    GenServer.cast(
+      room_pid,
+      {:add_player,
+       %{
+         id: state.id,
+         username: state.client_name,
+         nb_races: 256,
+         nb_wins: 242,
+         record: "00:42:42"
+       }}
+    )
+  end
+
   def handle_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
     GenServer.cast(pid, {:handle_msg, msg})
   end
@@ -145,18 +159,7 @@ defmodule Network.Worker do
         {:ok, pid} = Room.start_link(state.id)
         %{id: room_id} = GenServer.call(pid, :get_entries)
 
-        GenServer.cast(
-          pid,
-          {:add_player,
-           %{
-             id: state.id,
-             username: state.client_name,
-             nb_races: 256,
-             nb_wins: 242,
-             record: "00:42:42"
-           }}
-        )
-
+        add_me_as_room_player(pid, state)
         GenServer.cast(self(), {:set_current_room, pid})
 
         Logger.info("Room #{inspect(pid)} created")
@@ -173,8 +176,12 @@ defmodule Network.Worker do
         Logger.info(inspect(RoomRegistry.get_entries()))
         Logger.info(inspect(GenServer.call(room_pid, :get_entries)))
 
-      {:join_room, _data} ->
+      {:join_room, data} ->
         Logger.info("User join room")
+        %{id: room_id} = data
+        %{^room_id => room_pid} = RoomRegistry.get_entries()
+        add_me_as_room_player(room_pid, state)
+        GenServer.cast(self(), {:set_current_room, room_pid})
 
       {:login_request, data} ->
         %{username: username, password: password} = data
