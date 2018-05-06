@@ -156,7 +156,7 @@ defmodule Network.Worker do
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:create_room, data} ->
-        Logger.info("Request to created room.")
+        Logger.info("Request for creating a room.")
 
         %{
           room_type: room_type,
@@ -168,14 +168,46 @@ defmodule Network.Worker do
         {:ok, pid} =
           Room.start_link(state.id, room_type, id_circuit, max_players)
 
-        %{id: room_id} = GenServer.call(pid, :get_entries)
-
         add_me_as_room_player(pid, state)
+
+        room_infos = GenServer.call(pid, :get_entries)
+        %{id: room_id} = room_infos
+
+        players =
+          Enum.map(room_infos.players, fn {_pk, pv} ->
+            Player.new(
+              username: pv.username,
+              nb_races: pv.nb_races,
+              nb_wins: pv.nb_wins,
+              record: pv.record
+            )
+          end)
+
+        room =
+          RoomListItem.new(
+            id: room_infos.id,
+            room_type: room_infos.room_type,
+            id_circuit: room_infos.id_circuit,
+            max_players: room_infos.max_players,
+            nb_players: Kernel.map_size(room_infos.players),
+            players: players
+          )
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "room_list_response",
+               msg:
+                 {:room_list_response, RoomListResponse.new(room_list: [room])}
+             )
+           )}
+        )
+
         GenServer.cast(self(), {:set_current_room, pid})
-
-        Logger.info("Room #{inspect(pid)} created")
-
         RoomRegistry.register({room_id, pid})
+        Logger.info("Room #{inspect(pid)} created")
 
       {:start_room, data} ->
         Logger.info("Started room")
