@@ -8,13 +8,16 @@ defmodule Network.Room do
   @doc """
   Initialize a room
   """
-  def start_link(creator_id) do
+  def start_link(creator_id, room_type, id_circuit, max_players) do
     default_state = %{
       id: UUID.uuid4(),
       # right on the room's modif
       creator: creator_id,
       players: %{},
-      started: false
+      started: false,
+      room_type: room_type,
+      id_circuit: id_circuit,
+      max_players: max_players
     }
 
     GenServer.start_link(__MODULE__, default_state)

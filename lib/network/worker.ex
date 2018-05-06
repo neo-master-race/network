@@ -155,11 +155,19 @@ defmodule Network.Worker do
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
-      {:create_room, _data} ->
+      {:create_room, data} ->
         Logger.info("Request to created room.")
 
+        %{
+          room_type: room_type,
+          id_circuit: id_circuit,
+          max_players: max_players
+        } = data
+
         # creator
-        {:ok, pid} = Room.start_link(state.id)
+        {:ok, pid} =
+          Room.start_link(state.id, room_type, id_circuit, max_players)
+
         %{id: room_id} = GenServer.call(pid, :get_entries)
 
         add_me_as_room_player(pid, state)
@@ -266,26 +274,23 @@ defmodule Network.Worker do
           Enum.map(rooms, fn {_k, v} ->
             room_infos = GenServer.call(v, :get_entries)
 
+            players =
+              Enum.map(room_infos.players, fn {_pk, pv} ->
+                Player.new(
+                  username: pv.username,
+                  nb_races: pv.nb_races,
+                  nb_wins: pv.nb_wins,
+                  record: pv.record
+                )
+              end)
+
             RoomListItem.new(
               id: room_infos.id,
-              room_type: 1,
-              id_circuit: 1,
-              max_players: 4,
-              nb_players: 2,
-              players: [
-                Player.new(
-                  username: "ludovicm67",
-                  nb_races: 42,
-                  nb_wins: 42,
-                  record: "00:00:42"
-                ),
-                Player.new(
-                  username: "root",
-                  nb_races: 4242,
-                  nb_wins: 42,
-                  record: "00:01:42"
-                )
-              ]
+              room_type: room_infos.room_type,
+              id_circuit: room_infos.id_circuit,
+              max_players: room_infos.max_players,
+              nb_players: Kernel.map_size(room_infos.players),
+              players: players
             )
           end)
 
