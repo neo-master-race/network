@@ -79,8 +79,13 @@ message StartRoom {
 }
 
 // join a room
-message JoinRoom {
+message JoinRoomRequest {
   string id = 1;
+}
+
+message JoinRoomResponse {
+  bool success = 1;
+  RoomListItem room = 2;
 }
 
 message StartingPosition {
@@ -123,7 +128,7 @@ message Message {
     UpdatePlayerStatusRequest update_player_status_request = 6;
     CreateRoom create_room = 7;
     StartRoom start_room = 8;
-    JoinRoom join_room = 9;
+    JoinRoomRequest join_room_request = 9;
     StartingPosition starting_position = 10;
     RegisterRequest register_request = 11;
     LoginRequest login_request = 12;
@@ -132,5 +137,6 @@ message Message {
     RoomListRequest room_list_request = 15;
     RoomListResponse room_list_response = 16;
     ChangeUsername change_username = 17;
+    JoinRoomResponse join_room_response = 18;
   }
 }

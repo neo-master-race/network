@@ -193,17 +193,23 @@ defmodule Network.Worker do
             players: players
           )
 
+        message_to_send =
+          Messages.encode(
+            Message.new(
+              type: "room_list_response",
+              msg:
+                {:room_list_response, RoomListResponse.new(room_list: [room])}
+            )
+          )
+
         GenServer.cast(
           self(),
-          {:send_msg,
-           Messages.encode(
-             Message.new(
-               type: "room_list_response",
-               msg:
-                 {:room_list_response, RoomListResponse.new(room_list: [room])}
-             )
-           )}
+          {:send_msg, message_to_send}
         )
+
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
 
         GenServer.cast(self(), {:set_current_room, pid})
         RoomRegistry.register({room_id, pid})
@@ -219,12 +225,52 @@ defmodule Network.Worker do
         Logger.info(inspect(RoomRegistry.get_entries()))
         Logger.info(inspect(GenServer.call(room_pid, :get_entries)))
 
-      {:join_room, data} ->
-        Logger.info("User join room")
+      {:join_room_request, data} ->
         %{id: room_id} = data
+        Logger.info("#{state.client_name} asked to join room ##{room_id}")
         %{^room_id => room_pid} = RoomRegistry.get_entries()
         add_me_as_room_player(room_pid, state)
         GenServer.cast(self(), {:set_current_room, room_pid})
+
+        room_infos = GenServer.call(room_pid, :get_entries)
+
+        players =
+          Enum.map(room_infos.players, fn {_pk, pv} ->
+            Player.new(
+              username: pv.username,
+              nb_races: pv.nb_races,
+              nb_wins: pv.nb_wins,
+              record: pv.record
+            )
+          end)
+
+        room =
+          RoomListItem.new(
+            id: room_infos.id,
+            room_type: room_infos.room_type,
+            id_circuit: room_infos.id_circuit,
+            max_players: room_infos.max_players,
+            nb_players: Kernel.map_size(room_infos.players),
+            players: players
+          )
+
+        message_to_send =
+          Messages.encode(
+            Message.new(
+              type: "room_list_response",
+              msg:
+                {:room_list_response, RoomListResponse.new(room_list: [room])}
+            )
+          )
+
+        GenServer.cast(
+          self(),
+          {:send_msg, message_to_send}
+        )
+
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
 
       {:login_request, data} ->
         %{username: username, password: password} = data
@@ -326,17 +372,22 @@ defmodule Network.Worker do
             )
           end)
 
+        message_to_send =
+          Messages.encode(
+            Message.new(
+              type: "room_list_response",
+              msg: {:room_list_response, RoomListResponse.new(room_list: rooms)}
+            )
+          )
+
         GenServer.cast(
           self(),
-          {:send_msg,
-           Messages.encode(
-             Message.new(
-               type: "room_list_response",
-               msg:
-                 {:room_list_response, RoomListResponse.new(room_list: rooms)}
-             )
-           )}
+          {:send_msg, message_to_send}
         )
+
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
 
       {:change_username, data} ->
         %{username: username} = data
