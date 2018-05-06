@@ -260,6 +260,35 @@ defmodule Network.Worker do
       {:room_list_request, _data} ->
         Logger.info("#{state.client_name} asked for room list")
 
+        rooms = RoomRegistry.get_entries()
+
+        rooms =
+          Enum.map(rooms, fn {_k, v} ->
+            room_infos = GenServer.call(v, :get_entries)
+
+            RoomListItem.new(
+              id: room_infos.id,
+              room_type: 1,
+              id_circuit: 1,
+              max_players: 4,
+              nb_players: 2,
+              players: [
+                Player.new(
+                  username: "ludovicm67",
+                  nb_races: 42,
+                  nb_wins: 42,
+                  record: "00:00:42"
+                ),
+                Player.new(
+                  username: "root",
+                  nb_races: 4242,
+                  nb_wins: 42,
+                  record: "00:01:42"
+                )
+              ]
+            )
+          end)
+
         GenServer.cast(
           self(),
           {:send_msg,
@@ -267,26 +296,7 @@ defmodule Network.Worker do
              Message.new(
                type: "room_list_response",
                msg:
-                 {:room_list_response,
-                  RoomListResponse.new(
-                    room_list: [
-                      RoomListItem.new(
-                        id: "424242424244242",
-                        room_type: 0,
-                        id_circuit: 1,
-                        max_players: 4,
-                        nb_players: 1,
-                        players: [
-                          Player.new(
-                            username: "ludovic",
-                            nb_races: 42,
-                            nb_wins: 42,
-                            record: "00:00:42"
-                          )
-                        ]
-                      )
-                    ]
-                  )}
+                 {:room_list_response, RoomListResponse.new(room_list: rooms)}
              )
            )}
         )
