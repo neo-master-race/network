@@ -306,6 +306,15 @@ defmodule Network.Worker do
            )}
         )
 
+      {:change_username, data} ->
+        %{username: username} = data
+        Logger.info("client ##{state.id} is now knows as #{username}")
+
+        GenServer.cast(
+          self(),
+          {:set_client_name, username}
+        )
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end

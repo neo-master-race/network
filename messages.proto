@@ -107,6 +107,10 @@ message LoginResponse {
   string username = 2;
 }
 
+message ChangeUsername {
+  string username = 1;
+}
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
@@ -127,5 +131,6 @@ message Message {
     LoginResponse login_response = 14;
     RoomListRequest room_list_request = 15;
     RoomListResponse room_list_response = 16;
+    ChangeUsername change_username = 17;
   }
 }
