@@ -5,6 +5,9 @@ defmodule Network.Room do
 
   use GenServer
 
+  alias Messages.RoomListItem
+  alias Messages.Player
+
   @doc """
   Initialize a room
   """
@@ -73,5 +76,32 @@ defmodule Network.Room do
   """
   def handle_call(:get_entries, _from, state) do
     {:reply, state, state}
+  end
+
+  @doc """
+  Returns item as a RoomListItem
+  """
+  def handle_call(:get_item, _from, state) do
+    players =
+      Enum.map(state.players, fn {_pk, pv} ->
+        Player.new(
+          username: pv.username,
+          nb_races: pv.nb_races,
+          nb_wins: pv.nb_wins,
+          record: pv.record
+        )
+      end)
+
+    room =
+      RoomListItem.new(
+        id: state.id,
+        room_type: state.room_type,
+        id_circuit: state.id_circuit,
+        max_players: state.max_players,
+        nb_players: Kernel.map_size(state.players),
+        players: players
+      )
+
+    {:reply, room, state}
   end
 end

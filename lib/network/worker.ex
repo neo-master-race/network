@@ -13,8 +13,6 @@ defmodule Network.Worker do
   alias Messages.Message
   alias Messages.RegisterResponse
   alias Messages.RoomListResponse
-  alias Messages.RoomListItem
-  alias Messages.Player
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -173,25 +171,7 @@ defmodule Network.Worker do
         room_infos = GenServer.call(pid, :get_entries)
         %{id: room_id} = room_infos
 
-        players =
-          Enum.map(room_infos.players, fn {_pk, pv} ->
-            Player.new(
-              username: pv.username,
-              nb_races: pv.nb_races,
-              nb_wins: pv.nb_wins,
-              record: pv.record
-            )
-          end)
-
-        room =
-          RoomListItem.new(
-            id: room_infos.id,
-            room_type: room_infos.room_type,
-            id_circuit: room_infos.id_circuit,
-            max_players: room_infos.max_players,
-            nb_players: Kernel.map_size(room_infos.players),
-            players: players
-          )
+        room = GenServer.call(pid, :get_item)
 
         message_to_send =
           Messages.encode(
@@ -231,28 +211,7 @@ defmodule Network.Worker do
         %{^room_id => room_pid} = RoomRegistry.get_entries()
         add_me_as_room_player(room_pid, state)
         GenServer.cast(self(), {:set_current_room, room_pid})
-
-        room_infos = GenServer.call(room_pid, :get_entries)
-
-        players =
-          Enum.map(room_infos.players, fn {_pk, pv} ->
-            Player.new(
-              username: pv.username,
-              nb_races: pv.nb_races,
-              nb_wins: pv.nb_wins,
-              record: pv.record
-            )
-          end)
-
-        room =
-          RoomListItem.new(
-            id: room_infos.id,
-            room_type: room_infos.room_type,
-            id_circuit: room_infos.id_circuit,
-            max_players: room_infos.max_players,
-            nb_players: Kernel.map_size(room_infos.players),
-            players: players
-          )
+        room = GenServer.call(room_pid, :get_item)
 
         message_to_send =
           Messages.encode(
@@ -350,26 +309,7 @@ defmodule Network.Worker do
 
         rooms =
           Enum.map(rooms, fn {_k, v} ->
-            room_infos = GenServer.call(v, :get_entries)
-
-            players =
-              Enum.map(room_infos.players, fn {_pk, pv} ->
-                Player.new(
-                  username: pv.username,
-                  nb_races: pv.nb_races,
-                  nb_wins: pv.nb_wins,
-                  record: pv.record
-                )
-              end)
-
-            RoomListItem.new(
-              id: room_infos.id,
-              room_type: room_infos.room_type,
-              id_circuit: room_infos.id_circuit,
-              max_players: room_infos.max_players,
-              nb_players: Kernel.map_size(room_infos.players),
-              players: players
-            )
+            GenServer.call(v, :get_list)
           end)
 
         message_to_send =
@@ -402,10 +342,6 @@ defmodule Network.Worker do
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end
   end
-
-  ## def room_exist(pid) do
-  ##  GenServer.call(__MODULE__)
-  ## end
 
   @doc """
   Handling the `buffer` when getting some datas.
