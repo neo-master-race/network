@@ -203,11 +203,11 @@ defmodule Network.Worker do
              Message.new(
                type: "join_room_response",
                msg: {
-                 {:join_room_response,
-                  JoinRoomResponse.new(
-                    success: true,
-                    room: room
-                  )}
+                 :join_room_response,
+                 JoinRoomResponse.new(
+                   success: true,
+                   room: room
+                 )
                }
              )
            )}
@@ -256,11 +256,11 @@ defmodule Network.Worker do
              Message.new(
                type: "join_room_response",
                msg: {
-                 {:join_room_response,
-                  JoinRoomResponse.new(
-                    success: true,
-                    room: room
-                  )}
+                 :join_room_response,
+                 JoinRoomResponse.new(
+                   success: true,
+                   room: room
+                 )
                }
              )
            )}
