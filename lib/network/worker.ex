@@ -9,6 +9,7 @@ defmodule Network.Worker do
   alias Network.RoomRegistry
   alias Network.User
   alias Messages.Disconnect
+  alias Messages.JoinRoomResponse
   alias Messages.LoginResponse
   alias Messages.Message
   alias Messages.RegisterResponse
@@ -195,6 +196,23 @@ defmodule Network.Worker do
         RoomRegistry.register({room_id, pid})
         Logger.info("Room #{inspect(pid)} created")
 
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "join_room_response",
+               msg: {
+                 {:join_room_response,
+                  JoinRoomResponse.new(
+                    success: true,
+                    room: room
+                  )}
+               }
+             )
+           )}
+        )
+
       {:start_room, data} ->
         Logger.info("Started room")
 
@@ -230,6 +248,23 @@ defmodule Network.Worker do
         ClientRegistry.get_entries()
         |> Stream.reject(fn {id, _pid} -> id == state.id end)
         |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
+
+        GenServer.cast(
+          self(),
+          {:send_msg,
+           Messages.encode(
+             Message.new(
+               type: "join_room_response",
+               msg: {
+                 {:join_room_response,
+                  JoinRoomResponse.new(
+                    success: true,
+                    room: room
+                  )}
+               }
+             )
+           )}
+        )
 
       {:login_request, data} ->
         %{username: username, password: password} = data
@@ -309,7 +344,7 @@ defmodule Network.Worker do
 
         rooms =
           Enum.map(rooms, fn {_k, v} ->
-            GenServer.call(v, :get_list)
+            GenServer.call(v, :get_item)
           end)
 
         message_to_send =
