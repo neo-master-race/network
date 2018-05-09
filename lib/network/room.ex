@@ -102,7 +102,7 @@ defmodule Network.Room do
       end
 
     # start the game
-    if length(players) >= state.max_players do
+    if length(Map.keys(players)) >= state.max_players do
       room = generate_room_list_item(state)
 
       msg =
