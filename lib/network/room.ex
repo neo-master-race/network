@@ -5,8 +5,10 @@ defmodule Network.Room do
 
   use GenServer
 
-  alias Messages.RoomListItem
+  alias Messages.Message
   alias Messages.Player
+  alias Messages.RoomListItem
+  alias Messages.StartRoom
 
   @doc """
   Initialize a room
@@ -58,6 +60,30 @@ defmodule Network.Room do
   end
 
   @doc """
+  Returns this room as a RoomListItem
+  """
+  def generate_room_list_item(state) do
+    players =
+      Enum.map(state.players, fn {_pk, pv} ->
+        Player.new(
+          username: pv.username,
+          nb_races: pv.nb_races,
+          nb_wins: pv.nb_wins,
+          record: pv.record
+        )
+      end)
+
+    RoomListItem.new(
+      id: state.id,
+      room_type: state.room_type,
+      id_circuit: state.id_circuit,
+      max_players: state.max_players,
+      nb_players: Kernel.map_size(state.players),
+      players: players
+    )
+  end
+
+  @doc """
   Function handling a room who starts
   """
   def handle_cast(:start, state) do
@@ -65,12 +91,15 @@ defmodule Network.Room do
   end
 
   def handle_cast({:add_player, player}, state) do
-    players = state.players
+    players =
+      case length(Map.keys(state.players)) < state.max_players do
+        false ->
+          state.players
 
-    if length(Map.keys(players)) < state.max_players do
-      %{id: player_id} = player
-      players = Map.put(state.players, player_id, player)
-    end
+        true ->
+          %{id: player_id} = player
+          Map.put(state.players, player_id, player)
+      end
 
     # start the game
     if length(players) >= state.max_players do
@@ -107,34 +136,8 @@ defmodule Network.Room do
   @doc """
   Returns item as a RoomListItem
   """
-  def generate_room_list_item(state) do
-    players =
-      Enum.map(state.players, fn {_pk, pv} ->
-        Player.new(
-          username: pv.username,
-          nb_races: pv.nb_races,
-          nb_wins: pv.nb_wins,
-          record: pv.record
-        )
-      end)
-
-    room =
-      RoomListItem.new(
-        id: state.id,
-        room_type: state.room_type,
-        id_circuit: state.id_circuit,
-        max_players: state.max_players,
-        nb_players: Kernel.map_size(state.players),
-        players: players
-      )
-  end
-
-  @doc """
-  Returns item as a RoomListItem
-  """
   def handle_call(:get_item, _from, state) do
     room = generate_room_list_item(state)
-
     {:reply, room, state}
   end
 end
