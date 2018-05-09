@@ -54,7 +54,7 @@ defmodule Network.Room do
   end
 
   def broadcast(%{players: players}, msg) do
-    for %{pid: pid} <- players do
+    for {_, %{pid: pid}} <- players do
       GenServer.cast(pid, {:send_msg, msg})
     end
   end
