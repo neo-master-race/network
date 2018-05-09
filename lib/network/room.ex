@@ -66,6 +66,7 @@ defmodule Network.Room do
 
   def handle_cast({:add_player, player}, state) do
     players = state.players
+
     if length(Map.keys(players)) < state.max_players do
       %{id: player_id} = player
       players = Map.put(state.players, player_id, player)
@@ -73,7 +74,17 @@ defmodule Network.Room do
 
     # start the game
     if length(players) >= state.max_players do
+      room = generate_room_list_item(state)
 
+      msg =
+        Messages.encode(
+          Message.new(
+            type: "start_room",
+            msg: {:start_room, StartRoom.new(success: true, room: room)}
+          )
+        )
+
+      broadcast(state, msg)
     end
 
     {:noreply, %{state | players: players}}
@@ -96,7 +107,7 @@ defmodule Network.Room do
   @doc """
   Returns item as a RoomListItem
   """
-  def handle_call(:get_item, _from, state) do
+  def generate_room_list_item(state) do
     players =
       Enum.map(state.players, fn {_pk, pv} ->
         Player.new(
@@ -116,6 +127,13 @@ defmodule Network.Room do
         nb_players: Kernel.map_size(state.players),
         players: players
       )
+  end
+
+  @doc """
+  Returns item as a RoomListItem
+  """
+  def handle_call(:get_item, _from, state) do
+    room = generate_room_list_item(state)
 
     {:reply, room, state}
   end
