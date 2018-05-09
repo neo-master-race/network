@@ -92,14 +92,13 @@ defmodule Network.Room do
 
   def handle_cast({:add_player, player}, state) do
     players =
-      case length(Map.keys(state.players)) < state.max_players do
-        false ->
-          state.players
-
-        true ->
-          %{id: player_id} = player
-          Map.put(state.players, player_id, player)
+      if length(Map.keys(state.players)) < state.max_players do
+        state.players
+      else
+        Map.put(state.players, player.id, player)
       end
+
+    state = %{state | players: players}
 
     # start the game
     if length(Map.keys(players)) >= state.max_players do
@@ -116,7 +115,7 @@ defmodule Network.Room do
       broadcast(state, msg)
     end
 
-    {:noreply, %{state | players: players}}
+    {:noreply, state}
   end
 
   @doc """
