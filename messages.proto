@@ -75,7 +75,8 @@ message Player {
 
 // starts a game
 message StartRoom {
-  string id = 1;
+  bool success = 1;
+  RoomListItem room = 2;
 }
 
 // join a room
