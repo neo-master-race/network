@@ -48,6 +48,7 @@ defmodule Network.Worker do
       {:add_player,
        %{
          id: state.id,
+         pid: self(),
          username: state.client_name,
          nb_races: 256,
          nb_wins: 242,

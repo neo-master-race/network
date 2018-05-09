@@ -51,6 +51,12 @@ defmodule Network.Room do
     GenServer.call(__MODULE__, :get_entries)
   end
 
+  def broadcast(state, msg) do
+    Enum.each(state.players, fn p ->
+      GenServer.cast(p.pid, {:send_msg, msg})
+    end)
+  end
+
   @doc """
   Function handling a room who starts
   """
@@ -59,12 +65,18 @@ defmodule Network.Room do
   end
 
   def handle_cast({:add_player, player}, state) do
-    if length(Map.keys(state.players)) < state.max_players do
+    players = state.players
+    if length(Map.keys(players)) < state.max_players do
       %{id: player_id} = player
       players = Map.put(state.players, player_id, player)
-      {:noreply, %{state | players: players}}
-      # else
     end
+
+    # start the game
+    if length(players) >= state.max_players do
+
+    end
+
+    {:noreply, %{state | players: players}}
   end
 
   @doc """
