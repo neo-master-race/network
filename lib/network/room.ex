@@ -101,7 +101,7 @@ defmodule Network.Room do
     state = %{state | players: players}
 
     # start the game
-    if length(Map.keys(players)) >= state.max_players do
+    if Enum.count(players) >= state.max_players do
       room = generate_room_list_item(state)
 
       msg =
