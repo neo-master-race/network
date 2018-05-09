@@ -90,12 +90,12 @@ defmodule Network.Room do
     {:noreply, %{state | started: true}}
   end
 
-  def handle_cast({:add_player, player}, state) do
+  def handle_cast({:add_player, player}, %{players: players} = state) do
     players =
-      if length(Map.keys(state.players)) < state.max_players do
-        state.players
+      if Enum.count(players) < state.max_players do
+        Map.put(players, player.id, player)
       else
-        Map.put(state.players, player.id, player)
+        players
       end
 
     state = %{state | players: players}
