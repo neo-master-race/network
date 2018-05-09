@@ -53,10 +53,10 @@ defmodule Network.Room do
     GenServer.call(__MODULE__, :get_entries)
   end
 
-  def broadcast(state, msg) do
-    Enum.each(state.players, fn p ->
-      GenServer.cast(p.pid, {:send_msg, msg})
-    end)
+  def broadcast(%{players: players}, msg) do
+    for %{pid: pid} <- players do
+      GenServer.cast(pid, {:send_msg, msg})
+    end
   end
 
   @doc """
