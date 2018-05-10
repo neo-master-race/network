@@ -155,10 +155,7 @@ message UserStats {
 }
 
 // permettra d'insérer les valeurs en BDD
-message SetUserStats {
-  bool success = 1;
-  UserStats user_stats = 2;
-}
+message SetUserStats { UserStats user_stats = 1; }
 
 // permettra de retrouner les valeurs en BDD
 message UserStatsResponse { UserStats user_stats = 1; }
