@@ -1,5 +1,5 @@
 defmodule Network.Worker do
-  import Ecto.Query, only: [from: 2]
+  impory(Ecto.Query, only: [from: 2])
   use GenServer
   require Logger
 
@@ -54,6 +54,92 @@ defmodule Network.Worker do
          nb_wins: 242,
          record: "00:42:42"
        }}
+    )
+  end
+
+  def generate_user_stats(username) do
+    query =
+      from(
+        u in "users",
+        where: u.username == ^username,
+        select:
+          {u.race, u.victory, u.recordt1, u.recordt2, u.recordt3, u.car1red,
+           u.car1green, u.car1blue, u.car2red, u.car2green, u.car2blue,
+           u.car3red, u.car3green, u.car3blue, u.car4red, u.car4green,
+           u.car4blue, u.car1slider, u.car1redTR, u.car1greenTR, u.car1blueTR,
+           u.car1cursorX, u.car1cursorY, u.car2slider, u.car2redTR,
+           u.car2greenTR, u.car2blueTR, u.car2cursorX, u.car2cursorY,
+           u.car3slider, u.car3redTR, u.car3greenTR, u.car3blueTR,
+           u.car3cursorX, u.car3cursorY, u.car4slider, u.car4redTR,
+           u.car4greenTR, u.car4blueTR, u.car4cursorX, u.car4cursorY}
+      )
+
+    res = Repo.all(query)
+    success = length(res) > 0
+
+    success =
+      case success do
+        true ->
+          list_race = List.first(res)
+
+        _ ->
+          false
+      end
+
+    GenServer.cast(
+      self(),
+      {:send_msg,
+       Messages.encode(
+         Message.new(
+           type: "user_stats_response",
+           msg:
+             {:user_stats_response,
+              UserStats.new(
+                username: username,
+                race: race,
+                victory: victory,
+                recordt1: recordt1,
+                recordt2: recordt2,
+                recordt3: recordt3,
+                car1red: car1red,
+                car1green: car1green,
+                car1blue: car1blue,
+                car2red: car2red,
+                car2green: car2green,
+                car2blue: car2blue,
+                car3red: car3red,
+                car3green: car3green,
+                car3blue: car3blue,
+                car4red: car4red,
+                car4green: car4green,
+                car4blue: car4blue,
+                car1slider: car1slider,
+                car1redTR: car1redTR,
+                car1greenTR: car1greenTR,
+                car1blueTR: car1blueTR,
+                car1cursorX: car1cursorX,
+                car1cursorY: car1cursorY,
+                car2slider: car2slider,
+                car2redTR: car2redTR,
+                car2greenTR: car2greenTR,
+                car2blueTR: car2blueTR,
+                car2cursorX: car2cursorX,
+                car2cursorY: car2cursorY,
+                car3slider: car3slider,
+                car3redTR: car3redTR,
+                car3greenTR: car3greenTR,
+                car3blueTR: car3blueTR,
+                car3cursorX: car3cursorX,
+                car3cursorY: car3cursorY,
+                car4slider: car4slider,
+                car4redTR: car4redTR,
+                car4greenTR: car4greenTR,
+                car4blueTR: car4blueTR,
+                car4cursorX: car4cursorX,
+                car4cursorY: car4cursorY
+              )}
+         )
+       )}
     )
   end
 
@@ -305,8 +391,7 @@ defmodule Network.Worker do
                  {:login_response,
                   LoginResponse.new(
                     success: success,
-                    username: username,
-                    user_stats: user_stats
+                    username: username
                   )}
              )
            )}
@@ -339,8 +424,7 @@ defmodule Network.Worker do
                  {:register_response,
                   RegisterResponse.new(
                     success: success,
-                    username: username,
-                    user_stats: user_stats
+                    username: username
                   )}
              )
            )}
