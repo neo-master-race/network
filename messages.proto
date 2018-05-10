@@ -53,9 +53,7 @@ message CreateRoom {
 
 message RoomListRequest {}
 
-message RoomListResponse {
-  repeated RoomListItem room_list = 1;
-}
+message RoomListResponse { repeated RoomListItem room_list = 1; }
 
 message RoomListItem {
   string id = 1;
@@ -80,18 +78,14 @@ message StartRoom {
 }
 
 // join a room
-message JoinRoomRequest {
-  string id = 1;
-}
+message JoinRoomRequest { string id = 1; }
 
 message JoinRoomResponse {
   bool success = 1;
   RoomListItem room = 2;
 }
 
-message StartingPosition {
-  repeated int32 position = 1;
-}
+message StartingPosition { repeated int32 position = 1; }
 
 message RegisterRequest {
   string username = 1;
@@ -113,8 +107,51 @@ message LoginResponse {
   string username = 2;
 }
 
-message ChangeUsername {
+message ChangeUsername { string username = 1; }
+
+message UserStats {
   string username = 1;
+  int32 race = 2;
+  int32 victory = 3;
+  string recordt1 = 4;
+  string recordt2 = 5;
+  string recordt3 = 6;
+  int32 car1red = 7;
+  int32 car1green = 8;
+  int32 car1blue = 9;
+  int32 car2red = 10;
+  int32 car2green = 11;
+  int32 car2blue = 12;
+  int32 car3red = 13;
+  int32 car3green = 14;
+  int32 car3blue = 15;
+  int32 car4red = 16;
+  int32 car4green = 17;
+  int32 car4blue = 18;
+  float car1slider = 19;
+  int32 car1redTR = 20;
+  int32 car1greenTR = 21;
+  int32 car1blueTR = 22;
+  float car1cursorX = 23;
+  float car1cursorY = 24;
+  float car2slider = 25;
+  int32 car2redTR = 26;
+  int32 car2greenTR = 27;
+  int32 car2blueTR = 28;
+  float car2cursorX = 29;
+  float car2cursorY = 30;
+  float car3slider = 31;
+  int32 car3redTR = 32;
+  int32 car3greenTR = 33;
+  int32 car3blueTR = 34;
+  float car3cursorX = 35;
+  float car3cursorY = 36;
+  float car4slider = 37;
+  int32 car4redTR = 38;
+  int32 car4greenTR = 39;
+  int32 car4blueTR = 40;
+  float car4cursorX = 41;
+  float car4cursorY = 42;
 }
 
 // message that can be exchanged between the client and the server
