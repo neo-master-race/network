@@ -154,6 +154,19 @@ message UserStats {
   float car4cursorY = 42;
 }
 
+// permettra d'insérer les valeurs en BDD
+message SetUserStats {
+  bool success = 1;
+  UserStats user_stats = 2;
+}
+
+// permettra de retrouner les valeurs en BDD
+message UserStatsResponse { UserStats user_stats = 1; }
+
+// un message vide, qui servira à déclencher l'envoi d'un UserStatsResponse de
+// la part du serveur vers le client
+message GetUserStats { string empty_msg = 1; }
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
