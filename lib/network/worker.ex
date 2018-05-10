@@ -303,7 +303,11 @@ defmodule Network.Worker do
                type: "login_response",
                msg:
                  {:login_response,
-                  LoginResponse.new(success: success, username: username)}
+                  LoginResponse.new(
+                    success: success,
+                    username: username,
+                    user_stats: user_stats
+                  )}
              )
            )}
         )
@@ -333,7 +337,11 @@ defmodule Network.Worker do
                type: "register_response",
                msg:
                  {:register_response,
-                  RegisterResponse.new(success: success, username: username)}
+                  RegisterResponse.new(
+                    success: success,
+                    username: username,
+                    user_stats: user_stats
+                  )}
              )
            )}
         )
