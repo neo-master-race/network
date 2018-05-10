@@ -165,7 +165,7 @@ message UserStatsResponse { UserStats user_stats = 1; }
 
 // un message vide, qui servira à déclencher l'envoi d'un UserStatsResponse de
 // la part du serveur vers le client
-message GetUserStats { string empty_msg = 1; }
+message GetUserStats {}
 
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
