@@ -100,11 +100,13 @@ message LoginRequest {
 message RegisterResponse {
   bool success = 1;
   string username = 2;
+  UserStats user_stats = 3;
 }
 
 message LoginResponse {
   bool success = 1;
   string username = 2;
+  UserStats user_stats = 3;
 }
 
 message ChangeUsername { string username = 1; }
