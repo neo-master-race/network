@@ -1,5 +1,5 @@
 defmodule Network.Worker do
-  impory(Ecto.Query, only: [from: 2])
+  import(Ecto.Query, only: [from: 2])
   use GenServer
   require Logger
 
@@ -77,70 +77,65 @@ defmodule Network.Worker do
     res = Repo.all(query)
     success = length(res) > 0
 
-    success =
-      case success do
-        true ->
-          list_race = List.first(res)
 
-        _ ->
-          false
-      end
-
-    GenServer.cast(
-      self(),
-      {:send_msg,
-       Messages.encode(
-         Message.new(
-           type: "user_stats_response",
-           msg:
-             {:user_stats_response,
-              UserStats.new(
-                username: username,
-                race: race,
-                victory: victory,
-                recordt1: recordt1,
-                recordt2: recordt2,
-                recordt3: recordt3,
-                car1red: car1red,
-                car1green: car1green,
-                car1blue: car1blue,
-                car2red: car2red,
-                car2green: car2green,
-                car2blue: car2blue,
-                car3red: car3red,
-                car3green: car3green,
-                car3blue: car3blue,
-                car4red: car4red,
-                car4green: car4green,
-                car4blue: car4blue,
-                car1slider: car1slider,
-                car1redTR: car1redTR,
-                car1greenTR: car1greenTR,
-                car1blueTR: car1blueTR,
-                car1cursorX: car1cursorX,
-                car1cursorY: car1cursorY,
-                car2slider: car2slider,
-                car2redTR: car2redTR,
-                car2greenTR: car2greenTR,
-                car2blueTR: car2blueTR,
-                car2cursorX: car2cursorX,
-                car2cursorY: car2cursorY,
-                car3slider: car3slider,
-                car3redTR: car3redTR,
-                car3greenTR: car3greenTR,
-                car3blueTR: car3blueTR,
-                car3cursorX: car3cursorX,
-                car3cursorY: car3cursorY,
-                car4slider: car4slider,
-                car4redTR: car4redTR,
-                car4greenTR: car4greenTR,
-                car4blueTR: car4blueTR,
-                car4cursorX: car4cursorX,
-                car4cursorY: car4cursorY
-              )}
-         )
-       )}
-    )
+    if success do
+      res = List.first(res);
+    end
+    # GenServer.cast(
+    #   self(),
+    #   {:send_msg,
+    #    Messages.encode(
+    #      Message.new(
+    #        type: "user_stats_response",
+    #        msg:
+    #          {:user_stats_response,
+    #           UserStats.new(
+    #             username: username,
+    #             race: race,
+    #             victory: victory,
+    #             recordt1: recordt1,
+    #             recordt2: recordt2,
+    #             recordt3: recordt3,
+    #             car1red: car1red,
+    #             car1green: car1green,
+    #             car1blue: car1blue,
+    #             car2red: car2red,
+    #             car2green: car2green,
+    #             car2blue: car2blue,
+    #             car3red: car3red,
+    #             car3green: car3green,
+    #             car3blue: car3blue,
+    #             car4red: car4red,
+    #             car4green: car4green,
+    #             car4blue: car4blue,
+    #             car1slider: car1slider,
+    #             car1redTR: car1redTR,
+    #             car1greenTR: car1greenTR,
+    #             car1blueTR: car1blueTR,
+    #             car1cursorX: car1cursorX,
+    #             car1cursorY: car1cursorY,
+    #             car2slider: car2slider,
+    #             car2redTR: car2redTR,
+    #             car2greenTR: car2greenTR,
+    #             car2blueTR: car2blueTR,
+    #             car2cursorX: car2cursorX,
+    #             car2cursorY: car2cursorY,
+    #             car3slider: car3slider,
+    #             car3redTR: car3redTR,
+    #             car3greenTR: car3greenTR,
+    #             car3blueTR: car3blueTR,
+    #             car3cursorX: car3cursorX,
+    #             car3cursorY: car3cursorY,
+    #             car4slider: car4slider,
+    #             car4redTR: car4redTR,
+    #             car4greenTR: car4greenTR,
+    #             car4blueTR: car4blueTR,
+    #             car4cursorX: car4cursorX,
+    #             car4cursorY: car4cursorY
+    #           )}
+    #      )
+    #    )}
+    # )
   end
 
   def handle_msg(pid, msg) when is_pid(pid) and is_binary(msg) do

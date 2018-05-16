@@ -3,7 +3,7 @@ defmodule Network.Repo.Migrations.CreateUsers do
 
   def change do
     create table("users") do
-      add(:username, :string)
+      add(:username, :string, size: 100)
       add(:password, :string)
     end
 
@@ -58,5 +58,7 @@ defmodule Network.Repo.Migrations.CreateUsers do
       add(:car4cursorX, :float)
       add(:car4cursorY, :float)
     end
+
+    create unique_index :users, [:username], username: :users_username_unique
   end
 end
