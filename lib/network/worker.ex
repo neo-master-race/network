@@ -271,6 +271,8 @@ defmodule Network.Worker do
         %{username: username, password: password} = data
         Logger.info("#{username} tried to log in")
 
+        state = %{state | user_stats: update_user_stats(username, state)}
+
         query =
           from(
             u in "users",
@@ -305,7 +307,8 @@ defmodule Network.Worker do
                  {:login_response,
                   LoginResponse.new(
                     success: success,
-                    username: username
+                    username: username,
+                    user_stats: state.user_stats
                   )}
              )
            )}
@@ -316,6 +319,8 @@ defmodule Network.Worker do
       {:register_request, data} ->
         %{username: username, password: password} = data
         Logger.info("#{username} tried to register")
+
+        state = %{state | user_stats: update_user_stats(username, state)}
 
         u =
           User.changeset(%Network.User{}, %{
@@ -340,7 +345,8 @@ defmodule Network.Worker do
                  {:register_response,
                   RegisterResponse.new(
                     success: success,
-                    username: username
+                    username: username,
+                    user_stats: state.user_stats
                   )}
              )
            )}
@@ -378,10 +384,14 @@ defmodule Network.Worker do
         %{username: username} = data
         Logger.info("client ##{state.id} is now knows as #{username}")
 
-        GenServer.cast(
-          self(),
-          {:set_client_name, username}
-        )
+        user_stats = %{state.user_stats | username: username}
+
+        state = %{
+          state
+          | registred_user: true,
+            client_name: username,
+            user_stats: user_stats
+        }
 
         state
 
@@ -408,21 +418,24 @@ defmodule Network.Worker do
   end
 
   def update_user_stats(user, state) do
-    query =
-      from(
-        u in "users",
-        where: u.username == ^user,
-        select: u.id
-      )
-
-    res = Repo.all(query)
-    success = length(res) > 0
-
-    if success do
-      id = List.first(res)
-      Repo.get!(User, id)
+    if user == "" do
+      init_user_stats()
     else
-      state.user_stats
+      query =
+        from(
+          u in "users",
+          where: u.username == ^user,
+          select: u.id
+        )
+
+      res = Repo.all(query)
+
+      if length(res) > 0 do
+        id = List.first(res)
+        struct(UserStats, Map.from_struct(Repo.get!(User, id)))
+      else
+        state.user_stats
+      end
     end
   end
 
@@ -444,14 +457,6 @@ defmodule Network.Worker do
 
     {:noreply,
      %{state | registred_user: false, client_name: "", user_stats: user_stats}}
-  end
-
-  @doc """
-  Setter for client name
-  """
-  def handle_cast({:set_client_name, user}, state) do
-    user_stats = %{state.user_stats | username: user}
-    {:noreply, %{state | client_name: user, user_stats: user_stats}}
   end
 
   @doc """
