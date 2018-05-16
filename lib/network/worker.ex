@@ -14,6 +14,7 @@ defmodule Network.Worker do
   alias Messages.Message
   alias Messages.RegisterResponse
   alias Messages.RoomListResponse
+  alias Messages.UserStats
 
   def start_link(socket, transport, id) do
     default_state = %{
@@ -24,7 +25,7 @@ defmodule Network.Worker do
       buffer: "",
       current_room: nil,
       registred_user: false,
-      database_id: 0
+      user_stats: init_user_stats()
     }
 
     GenServer.start_link(__MODULE__, default_state)
@@ -50,92 +51,58 @@ defmodule Network.Worker do
          id: state.id,
          pid: self(),
          username: state.client_name,
-         nb_races: 256,
-         nb_wins: 242,
-         record: "00:42:42"
+         nb_races: state.user_stats.race,
+         nb_wins: state.user_stats.victory,
+         record: state.user_stats.recordt1
        }}
     )
   end
 
-  def generate_user_stats(username) do
-    query =
-      from(
-        u in "users",
-        where: u.username == ^username,
-        select:
-          {u.race, u.victory, u.recordt1, u.recordt2, u.recordt3, u.car1red,
-           u.car1green, u.car1blue, u.car2red, u.car2green, u.car2blue,
-           u.car3red, u.car3green, u.car3blue, u.car4red, u.car4green,
-           u.car4blue, u.car1slider, u.car1redTR, u.car1greenTR, u.car1blueTR,
-           u.car1cursorX, u.car1cursorY, u.car2slider, u.car2redTR,
-           u.car2greenTR, u.car2blueTR, u.car2cursorX, u.car2cursorY,
-           u.car3slider, u.car3redTR, u.car3greenTR, u.car3blueTR,
-           u.car3cursorX, u.car3cursorY, u.car4slider, u.car4redTR,
-           u.car4greenTR, u.car4blueTR, u.car4cursorX, u.car4cursorY}
-      )
-
-    res = Repo.all(query)
-    success = length(res) > 0
-
-
-    if success do
-      res = List.first(res);
-    end
-    # GenServer.cast(
-    #   self(),
-    #   {:send_msg,
-    #    Messages.encode(
-    #      Message.new(
-    #        type: "user_stats_response",
-    #        msg:
-    #          {:user_stats_response,
-    #           UserStats.new(
-    #             username: username,
-    #             race: race,
-    #             victory: victory,
-    #             recordt1: recordt1,
-    #             recordt2: recordt2,
-    #             recordt3: recordt3,
-    #             car1red: car1red,
-    #             car1green: car1green,
-    #             car1blue: car1blue,
-    #             car2red: car2red,
-    #             car2green: car2green,
-    #             car2blue: car2blue,
-    #             car3red: car3red,
-    #             car3green: car3green,
-    #             car3blue: car3blue,
-    #             car4red: car4red,
-    #             car4green: car4green,
-    #             car4blue: car4blue,
-    #             car1slider: car1slider,
-    #             car1redTR: car1redTR,
-    #             car1greenTR: car1greenTR,
-    #             car1blueTR: car1blueTR,
-    #             car1cursorX: car1cursorX,
-    #             car1cursorY: car1cursorY,
-    #             car2slider: car2slider,
-    #             car2redTR: car2redTR,
-    #             car2greenTR: car2greenTR,
-    #             car2blueTR: car2blueTR,
-    #             car2cursorX: car2cursorX,
-    #             car2cursorY: car2cursorY,
-    #             car3slider: car3slider,
-    #             car3redTR: car3redTR,
-    #             car3greenTR: car3greenTR,
-    #             car3blueTR: car3blueTR,
-    #             car3cursorX: car3cursorX,
-    #             car3cursorY: car3cursorY,
-    #             car4slider: car4slider,
-    #             car4redTR: car4redTR,
-    #             car4greenTR: car4greenTR,
-    #             car4blueTR: car4blueTR,
-    #             car4cursorX: car4cursorX,
-    #             car4cursorY: car4cursorY
-    #           )}
-    #      )
-    #    )}
-    # )
+  def init_user_stats() do
+    %UserStats{
+      username: "",
+      race: 0,
+      victory: 0,
+      recordt1: "--:--:--",
+      recordt2: "--:--:--",
+      recordt3: "--:--:--",
+      car1red: 0,
+      car1green: 0,
+      car1blue: 0,
+      car2red: 0,
+      car2green: 0,
+      car2blue: 0,
+      car3red: 0,
+      car3green: 0,
+      car3blue: 0,
+      car4red: 0,
+      car4green: 0,
+      car4blue: 0,
+      car1slider: 0,
+      car1redTR: 0,
+      car1greenTR: 0,
+      car1blueTR: 0,
+      car1cursorX: 0,
+      car1cursorY: 0,
+      car2slider: 0,
+      car2redTR: 0,
+      car2greenTR: 0,
+      car2blueTR: 0,
+      car2cursorX: 0,
+      car2cursorY: 0,
+      car3slider: 0,
+      car3redTR: 0,
+      car3greenTR: 0,
+      car3blueTR: 0,
+      car3cursorX: 0,
+      car3cursorY: 0,
+      car4slider: 0,
+      car4redTR: 0,
+      car4greenTR: 0,
+      car4blueTR: 0,
+      car4cursorX: 0,
+      car4cursorY: 0
+    }
   end
 
   def handle_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
@@ -165,29 +132,10 @@ defmodule Network.Worker do
         Logger.info("got an update player position message.")
         %{user: user} = data
 
-        cond do
-          user == state.client_name ->
-            # do not send to the sender
-            ClientRegistry.get_entries()
-            |> Stream.reject(fn {id, _pid} -> id == state.id end)
-            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
-
-          state.client_name == "" ->
-            GenServer.cast(
-              self(),
-              {:set_client_name, user}
-            )
-
-            # do not send to the sender
-            ClientRegistry.get_entries()
-            |> Stream.reject(fn {id, _pid} -> id == state.id end)
-            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
-
-          true ->
-            Logger.warn(
-              'permissions error when trying to handle #{inspect(data)}.'
-            )
-        end
+        # do not send to the sender
+        ClientRegistry.get_entries()
+        |> Stream.reject(fn {id, _pid} -> id == state.id end)
+        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
 
       {:update_player_status, data} ->
         Logger.info("got an update player status message.")
@@ -464,6 +412,8 @@ defmodule Network.Worker do
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
     end
+
+    state
   end
 
   @doc """
@@ -471,14 +421,14 @@ defmodule Network.Worker do
 
   Useful when many messages are coming at the same time, or if messages are too long.
   """
-  def handle_buffer(buffer, state) do
+  def handle_buffer(%{buffer: buffer} = state) do
     case buffer do
       <<len::little-unsigned-32, message::binary-size(len)>> <> rest ->
-        handle_message(message, state)
-        handle_buffer(rest, state)
+        state = handle_message(message, state)
+        handle_buffer(%{state | buffer: rest})
 
-      buffer ->
-        buffer
+      _ ->
+        state
     end
   end
 
@@ -486,21 +436,44 @@ defmodule Network.Worker do
   Setter for registred user
   """
   def handle_cast({:set_registred_user, user}, state) do
-    {:noreply, %{state | registred_user: true, client_name: user}}
+    query =
+      from(
+        u in "users",
+        where: u.username == ^user,
+        select: u.id
+      )
+
+    res = Repo.all(query)
+    success = length(res) > 0
+
+    user_stats =
+      if success do
+        id = List.first(res)
+        Repo.get!(User, id)
+      end
+
+    user_stats = %{state | user_stats: user_stats}
+
+    {:noreply,
+     %{state | registred_user: true, client_name: user, user_stats: user_stats}}
   end
 
   @doc """
   Setter for unregistred user (for loggin out)
   """
   def handle_cast(:set_unregistred_user, state) do
-    {:noreply, %{state | registred_user: false, client_name: ""}}
+    user_stats = %{state.user_stats | username: ""}
+
+    {:noreply,
+     %{state | registred_user: false, client_name: "", user_stats: user_stats}}
   end
 
   @doc """
   Setter for client name
   """
   def handle_cast({:set_client_name, user}, state) do
-    {:noreply, %{state | client_name: user}}
+    user_stats = %{state.user_stats | username: user}
+    {:noreply, %{state | client_name: user, user_stats: user_stats}}
   end
 
   @doc """
@@ -514,8 +487,8 @@ defmodule Network.Worker do
   Handle an incoming message `msg`
   """
   def handle_cast({:handle_msg, msg}, %{buffer: buffer} = state) do
-    buffer = handle_buffer(buffer <> msg, state)
-    {:noreply, %{state | buffer: buffer}}
+    state = handle_buffer(%{state | buffer: buffer <> msg})
+    {:noreply, state}
   end
 
   @doc """
