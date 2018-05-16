@@ -90,6 +90,24 @@ defmodule Network.Room do
     {:noreply, %{state | started: true}}
   end
 
+  def handle_cast({:broadcast, message}, state) do
+    broadcast(state, message)
+    {:noreply, state}
+  end
+
+  def handle_cast(
+        {:broadcast, message, except_pid},
+        %{players: players} = state
+      ) do
+    for {_, %{pid: pid}} <- players do
+      if pid != except_pid do
+        GenServer.cast(pid, {:send_msg, message})
+      end
+    end
+
+    {:noreply, state}
+  end
+
   def handle_cast({:add_player, player}, %{players: players} = state) do
     players =
       if Enum.count(players) < state.max_players do
@@ -116,6 +134,10 @@ defmodule Network.Room do
     end
 
     {:noreply, state}
+  end
+
+  def handle_cast({:remove_player, player_id}, %{players: players} = state) do
+    {:noreply, %{state | players: Map.delete(players, player_id)}}
   end
 
   @doc """

@@ -105,7 +105,10 @@ defmodule Network.Worker do
     }
   end
 
-  def broadcast_room(_message, _state) do
+  def broadcast_room(message, state) do
+    if state.current_room != nil && is_pid(state.current_room) do
+      GenServer.cast(state.current_room, {:broadcast, message, self()})
+    end
   end
 
   def broadcast_all(message, state) do
@@ -139,24 +142,24 @@ defmodule Network.Worker do
       {:update_player_position, _data} ->
         Logger.info("got an update player position message.")
 
-        broadcast_all(message, state)
+        broadcast_room(message, state)
         state
 
       {:update_player_status, _data} ->
         Logger.info("got an update player status message.")
-        broadcast_all(message, state)
+        broadcast_room(message, state)
         state
 
       {:update_player_status_request, _data} ->
         Logger.info("got an update player status request message.")
 
-        broadcast_all(message, state)
+        broadcast_room(message, state)
         state
 
       {:starting_position, _data} ->
         Logger.info("got a staring position message.")
 
-        broadcast_all(message, state)
+        broadcast_room(message, state)
         state
 
       {:disconnect, _data} ->
@@ -501,6 +504,10 @@ defmodule Network.Worker do
   """
   def handle_cast(:unregister, state) do
     Logger.info("client #{state.id} (#{state.client_name}) unregistered.")
+
+    if state.current_room != nil && is_pid(state.current_room) do
+      GenServer.cast(state.current_room, {:remove_player, state.id})
+    end
 
     GenServer.cast(
       self(),
