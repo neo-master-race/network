@@ -105,6 +105,16 @@ defmodule Network.Worker do
     }
   end
 
+  def broadcast_room(_message, _state) do
+  end
+
+  def broadcast_all(message, state) do
+    # do not send to the sender
+    ClientRegistry.get_entries()
+    |> Stream.reject(fn {id, _pid} -> id == state.id end)
+    |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+  end
+
   def handle_msg(pid, msg) when is_pid(pid) and is_binary(msg) do
     GenServer.cast(pid, {:handle_msg, msg})
   end
@@ -123,66 +133,37 @@ defmodule Network.Worker do
           }"
         )
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        broadcast_all(message, state)
+        state
 
-      {:update_player_position, data} ->
+      {:update_player_position, _data} ->
         Logger.info("got an update player position message.")
-        %{user: user} = data
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        broadcast_all(message, state)
+        state
 
-      {:update_player_status, data} ->
+      {:update_player_status, _data} ->
         Logger.info("got an update player status message.")
-        %{user: user} = data
-
-        cond do
-          user == state.client_name ->
-            # do not send to the sender
-            ClientRegistry.get_entries()
-            |> Stream.reject(fn {id, _pid} -> id == state.id end)
-            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
-
-          state.client_name == "" ->
-            GenServer.cast(
-              self(),
-              {:set_client_name, user}
-            )
-
-            # do not send to the sender
-            ClientRegistry.get_entries()
-            |> Stream.reject(fn {id, _pid} -> id == state.id end)
-            |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
-        end
+        broadcast_all(message, state)
+        state
 
       {:update_player_status_request, _data} ->
         Logger.info("got an update player status request message.")
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        broadcast_all(message, state)
+        state
 
       {:starting_position, _data} ->
         Logger.info("got a staring position message.")
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        broadcast_all(message, state)
+        state
 
       {:disconnect, _data} ->
         Logger.info("got a disconnect message.")
 
-        # do not send to the sender
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message) end)
+        broadcast_all(message, state)
+        state
 
       {:create_room, data} ->
         Logger.info("Request for creating a room.")
@@ -218,9 +199,7 @@ defmodule Network.Worker do
           {:send_msg, message_to_send}
         )
 
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
+        broadcast_all(message_to_send, state)
 
         GenServer.cast(self(), {:set_current_room, pid})
         RoomRegistry.register({room_id, pid})
@@ -243,15 +222,7 @@ defmodule Network.Worker do
            )}
         )
 
-      {:start_room, data} ->
-        Logger.info("Started room")
-
-        %{id: room_id} = data
-        %{^room_id => room_pid} = RoomRegistry.get_entries()
-        GenServer.cast(room_pid, :start)
-
-        Logger.info(inspect(RoomRegistry.get_entries()))
-        Logger.info(inspect(GenServer.call(room_pid, :get_entries)))
+        state
 
       {:join_room_request, data} ->
         %{id: room_id} = data
@@ -275,9 +246,7 @@ defmodule Network.Worker do
           {:send_msg, message_to_send}
         )
 
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
+        broadcast_all(message_to_send, state)
 
         GenServer.cast(
           self(),
@@ -295,6 +264,8 @@ defmodule Network.Worker do
              )
            )}
         )
+
+        state
 
       {:login_request, data} ->
         %{username: username, password: password} = data
@@ -340,6 +311,8 @@ defmodule Network.Worker do
            )}
         )
 
+        state
+
       {:register_request, data} ->
         %{username: username, password: password} = data
         Logger.info("#{username} tried to register")
@@ -373,6 +346,8 @@ defmodule Network.Worker do
            )}
         )
 
+        state
+
       {:room_list_request, _data} ->
         Logger.info("#{state.client_name} asked for room list")
 
@@ -396,9 +371,8 @@ defmodule Network.Worker do
           {:send_msg, message_to_send}
         )
 
-        ClientRegistry.get_entries()
-        |> Stream.reject(fn {id, _pid} -> id == state.id end)
-        |> Enum.each(fn {_id, pid} -> send_msg(pid, message_to_send) end)
+        broadcast_all(message_to_send, state)
+        state
 
       {:change_username, data} ->
         %{username: username} = data
@@ -409,11 +383,12 @@ defmodule Network.Worker do
           {:set_client_name, username}
         )
 
+        state
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
+        state
     end
-
-    state
   end
 
   @doc """
@@ -432,10 +407,7 @@ defmodule Network.Worker do
     end
   end
 
-  @doc """
-  Setter for registred user
-  """
-  def handle_cast({:set_registred_user, user}, state) do
+  def update_user_stats(user, state) do
     query =
       from(
         u in "users",
@@ -446,13 +418,19 @@ defmodule Network.Worker do
     res = Repo.all(query)
     success = length(res) > 0
 
-    user_stats =
-      if success do
-        id = List.first(res)
-        Repo.get!(User, id)
-      end
+    if success do
+      id = List.first(res)
+      Repo.get!(User, id)
+    else
+      state.user_stats
+    end
+  end
 
-    user_stats = %{state | user_stats: user_stats}
+  @doc """
+  Setter for registred user
+  """
+  def handle_cast({:set_registred_user, user}, state) do
+    user_stats = %{state.user_stats | username: user}
 
     {:noreply,
      %{state | registred_user: true, client_name: user, user_stats: user_stats}}
