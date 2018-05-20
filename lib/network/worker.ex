@@ -398,6 +398,16 @@ defmodule Network.Worker do
 
         state
 
+      {:set_user_stats, %{user_stats: us} = _data} ->
+        %{username: username} = us
+        Logger.info("client ##{state.id} aka #{username} updated his stats")
+
+        Repo.get_by(User, username: username)
+        |> Ecto.Changeset.change(Map.from_struct(us))
+        |> Repo.update()
+
+        %{state | user_stats: us}
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
         state

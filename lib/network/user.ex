@@ -59,8 +59,52 @@ defmodule Network.User do
 
   def changeset(user, params \\ %{}) do
     user
-    |> cast(params, [:username, :password])
-    |> validate_required([:username, :password])
+    |> cast(params, [
+      :username,
+      :password,
+      :race,
+      :victory,
+      :recordt1,
+      :recordt2,
+      :recordt3,
+      :car1red,
+      :car1green,
+      :car1blue,
+      :car2red,
+      :car2green,
+      :car2blue,
+      :car3red,
+      :car3green,
+      :car3blue,
+      :car4red,
+      :car4green,
+      :car4blue,
+      :car1slider,
+      :car1redTR,
+      :car1greenTR,
+      :car1blueTR,
+      :car1cursorX,
+      :car1cursorY,
+      :car2slider,
+      :car2redTR,
+      :car2greenTR,
+      :car2blueTR,
+      :car2cursorX,
+      :car2cursorY,
+      :car3slider,
+      :car3redTR,
+      :car3greenTR,
+      :car3blueTR,
+      :car3cursorX,
+      :car3cursorY,
+      :car4slider,
+      :car4redTR,
+      :car4greenTR,
+      :car4blueTR,
+      :car4cursorX,
+      :car4cursorY
+    ])
+    |> validate_required([:username])
     |> unique_constraint(:username)
   end
 end
