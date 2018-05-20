@@ -188,5 +188,7 @@ message Message {
     RoomListResponse room_list_response = 16;
     ChangeUsername change_username = 17;
     JoinRoomResponse join_room_response = 18;
+    SetUserStats set_user_stats = 19;
+    GetUserStats get_user_stats = 20;
   }
 }
