@@ -15,6 +15,10 @@ message UpdatePlayerPosition {
   Vector scale = 3;
   string user = 4;
   Vector velocity = 5;
+  int32 car_type = 6;
+  int32 car_r = 7;
+  int32 car_g = 8;
+  int32 car_b = 9;
 }
 
 // update the status of a player
@@ -62,6 +66,7 @@ message RoomListItem {
   int32 max_players = 4;
   int32 nb_players = 5;
   repeated Player players = 6;
+  repeated int32 starting_positions = 7;
 }
 
 message Player {

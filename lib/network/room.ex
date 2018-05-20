@@ -22,7 +22,8 @@ defmodule Network.Room do
       started: false,
       room_type: room_type,
       id_circuit: id_circuit,
-      max_players: max_players
+      max_players: max_players,
+      starting_positions: Enum.shuffle(Enum.to_list(1..max_players))
     }
 
     GenServer.start_link(__MODULE__, default_state)
@@ -79,7 +80,8 @@ defmodule Network.Room do
       id_circuit: state.id_circuit,
       max_players: state.max_players,
       nb_players: Kernel.map_size(state.players),
-      players: players
+      players: players,
+      starting_positions: state.starting_positions
     )
   end
 
