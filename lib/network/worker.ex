@@ -408,6 +408,13 @@ defmodule Network.Worker do
 
         %{state | user_stats: us}
 
+      {:leave_room, _data} ->
+        if state.current_room != nil && is_pid(state.current_room) do
+          GenServer.cast(state.current_room, {:remove_player, state.id})
+        end
+
+        %{state | current_room: nil}
+
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
         state
