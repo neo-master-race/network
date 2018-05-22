@@ -171,6 +171,8 @@ message UserStatsResponse { UserStats user_stats = 1; }
 // la part du serveur vers le client
 message GetUserStats {}
 
+message LeaveRoom {}
+
 // message that can be exchanged between the client and the server
 // TYPE = "chat_message" if ChatMessage (for example)
 message Message {
@@ -195,5 +197,6 @@ message Message {
     JoinRoomResponse join_room_response = 18;
     SetUserStats set_user_stats = 19;
     GetUserStats get_user_stats = 20;
+    LeaveRoom leave_room = 21;
   }
 }
