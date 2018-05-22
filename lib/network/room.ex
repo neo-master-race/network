@@ -9,6 +9,7 @@ defmodule Network.Room do
   alias Messages.Player
   alias Messages.RoomListItem
   alias Messages.StartRoom
+  alias Network.RoomRegistry
 
   @doc """
   Initialize a room
@@ -139,7 +140,13 @@ defmodule Network.Room do
   end
 
   def handle_cast({:remove_player, player_id}, %{players: players} = state) do
-    {:noreply, %{state | players: Map.delete(players, player_id)}}
+    players = Map.delete(players, player_id)
+
+    if map_size(players) <= 0 do
+      RoomRegistry.unregister(state.id)
+    end
+
+    {:noreply, %{state | players: players}}
   end
 
   @doc """
