@@ -433,6 +433,16 @@ defmodule Network.Worker do
         |> TrackRecords.changeset(changes)
         |> Repo.insert_or_update()
 
+        message_to_send =
+          Messages.encode(
+            Message.new(
+              type: "global_record",
+              msg: {:global_record, GlobalRecord.new(track: id, record: record)}
+            )
+          )
+
+        broadcast_all(message_to_send, state)
+
         state
 
       {:get_global_record, data} ->
