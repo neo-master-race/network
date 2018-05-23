@@ -7,8 +7,10 @@ defmodule Network.Worker do
   alias Network.Repo
   alias Network.Room
   alias Network.RoomRegistry
+  alias Network.TrackRecords
   alias Network.User
   alias Messages.Disconnect
+  alias Messages.GlobalRecord
   alias Messages.JoinRoomResponse
   alias Messages.LoginResponse
   alias Messages.Message
@@ -417,6 +419,46 @@ defmodule Network.Worker do
         end
 
         %{state | current_room: nil}
+
+      {:set_global_record, data} ->
+        %{track: id, record: record} = data
+        changes = %{id: id, record: record}
+
+        case Repo.get(TrackRecords, id) do
+          nil -> struct(TrackRecords, changes)
+          record -> record
+        end
+        |> TrackRecords.changeset(changes)
+        |> Repo.insert_or_update()
+
+        state
+
+      {:get_global_record, data} ->
+        %{track: id} = data
+
+        res =
+          case Repo.get(TrackRecords, id) do
+            nil -> struct(TrackRecords, %{id: 0, record: "--:--:--"})
+            record -> record
+          end
+
+        %{id: track, record: record} = res
+
+        message_to_send =
+          Messages.encode(
+            Message.new(
+              type: "global_record",
+              msg:
+                {:global_record, GlobalRecord.new(track: track, record: record)}
+            )
+          )
+
+        GenServer.cast(
+          self(),
+          {:send_msg, message_to_send}
+        )
+
+        state
 
       _ ->
         Logger.warn("cannot decode message: #{String.trim(message)}")
