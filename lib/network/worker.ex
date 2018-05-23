@@ -407,9 +407,11 @@ defmodule Network.Worker do
         %{username: username} = us
         Logger.info("client ##{state.id} aka #{username} updated his stats")
 
-        Repo.get_by(User, username: username)
-        |> Ecto.Changeset.change(Map.from_struct(us))
-        |> Repo.update()
+        u = Repo.get_by(User, username: username)
+
+        if u != nil do
+          u |> Ecto.Changeset.change(Map.from_struct(us)) |> Repo.update()
+        end
 
         %{state | user_stats: us}
 
