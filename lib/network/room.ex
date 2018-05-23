@@ -114,6 +114,15 @@ defmodule Network.Room do
   def handle_cast({:add_player, player}, %{players: players} = state) do
     players =
       if Enum.count(players) < state.max_players do
+        record =
+          case state.id_circuit do
+            1 -> player.record1
+            2 -> player.record2
+            3 -> player.record3
+            _ -> player.record
+          end
+
+        player = %{player | record: record}
         Map.put(players, player.id, player)
       else
         players

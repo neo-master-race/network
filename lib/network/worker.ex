@@ -53,7 +53,10 @@ defmodule Network.Worker do
          username: state.client_name,
          nb_races: state.user_stats.race,
          nb_wins: state.user_stats.victory,
-         record: state.user_stats.recordt1
+         record: state.user_stats.recordt1,
+         record1: state.user_stats.recordt1,
+         record2: state.user_stats.recordt2,
+         record3: state.user_stats.recordt3
        }}
     )
   end
